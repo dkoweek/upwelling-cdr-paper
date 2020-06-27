@@ -74,10 +74,11 @@ delta_dataset <- function(tidync_data, variable, nickname, ...) {
                            TRUE ~ as.numeric(lon))) %>% #Adjust to E/W coordinates
     group_by(lat, lon) %>% 
     nest() %>% 
-    inner_join(., MLD_annual_mean, by = c("lat", "lon")) %>% #Merge with MLD data
-    mutate(!!ML_name := map2_dbl(data, MLD_algorithm, mixed_layer_value),
+    inner_join(., MLD_data, by = c("lat", "lon")) %>% #Merge with MLD data
+    mutate(!!ML_name := map2_dbl(data, MLD, mixed_layer_value),
            !!delta_name := map2(data, !!as.name(ML_name), delta_value)) %>% 
-    unnest(col = c(data, !!delta_name))
+    unnest(col = c(data, !!delta_name)) %>% 
+    ungroup()
     
   return(delta_ds)
   
@@ -92,7 +93,7 @@ run_or_load <- function(data_directory, data_file, scripts_directory, script) {
   file_absent <- 
     !(file.exists(data_file))
   
-  #Get modified timestamps for file and script
+  #Get modified timestamps for file, script, and functions
   file_mtime <- 
     file.mtime(data_file)
   
@@ -101,9 +102,13 @@ run_or_load <- function(data_directory, data_file, scripts_directory, script) {
   script_mtime <- 
     file.mtime(script)
   
+  functions_mtime <-
+    file.mtime("custom_functions.R")
+  
   #If the file doesn't exist or the script mtime is newer than the file mtime...
-  #...run the script and load the file. Otherwise, just load the file
-  if(file_absent | difftime(script_mtime, file_mtime)  > 0) {
+  #...or the set of custom functions mtime is new than the file mtime...
+  #....run the script and load the file. Otherwise, just load the file
+  if(file_absent | difftime(script_mtime, file_mtime)  > 0 | difftime(functions_mtime, file_mtime)  > 0) {
     
     source(script)
     
