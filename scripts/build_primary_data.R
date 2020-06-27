@@ -50,6 +50,44 @@ run_or_load(data_directory = here::here("data", "working_data"),
 
 #----Merge_data_sets----
 
-delta_data <- 
-  delta_T %>% 
+grouping_columns <- 
+  c("lat",
+    "lon",
+    "depth_m",
+    "MLD", 
+    "months_MLD_data")
+
+delta_data <-
+  delta_T %>%
+  inner_join(.,
+             delta_S,
+             by = grouping_columns) %>% 
+  inner_join(.,
+             delta_N,
+             by = grouping_columns) %>% 
+  inner_join(.,
+             delta_P,
+             by = grouping_columns) %>% 
+  inner_join(.,
+             delta_TA,
+             by = grouping_columns) %>% 
+  inner_join(.,
+             delta_DIC,
+             by = grouping_columns)
+
+#----Export_merged_data----
+
+#Save data set
+saveRDS(delta_data,
+        here::here("data",
+                   "working_data",
+                   "delta_data.rds"))
+
+#Clear memory
+rm(delta_T,
+   delta_S,
+   delta_N,
+   delta_P,
+   delta_TA,
+   delta_DIC)
   
