@@ -12,6 +12,12 @@ delta_TA_data <-
                 variable = "TAlk",
                 nickname = "TA")
 
+#Rename variables
+delta_TA_data <- 
+  delta_TA_data %>% 
+  rename(TA = TAlk,
+         delta_TA_cons = delta_TA) #conservative: transport-only, no biology
+
 #Save data set
 saveRDS(delta_TA_data,
         here::here("data",

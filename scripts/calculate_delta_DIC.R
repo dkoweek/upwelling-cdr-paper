@@ -12,6 +12,12 @@ delta_DIC_data <-
                 variable = "TCO2",
                 nickname = "DIC")
 
+#Rename variables
+delta_DIC_data <- 
+  delta_DIC_data %>% 
+  rename(DIC = TCO2,
+         delta_DIC_cons = delta_DIC) #conservative: transport-only, no biology
+
 #Save data set
 saveRDS(delta_DIC_data,
         here::here("data",
