@@ -53,39 +53,48 @@ N_P_expected <- function(NO3, PO4) {
 
 plankton_biogeochem_model <- function(NO3, PO4) {
   
-  N_P_hat <-
-    N_P_expected(NO3 = NO3,
-                 PO4 = PO4)
-  
-  if ((NO3 / PO4) >= N_P_hat) {
+  if(is.na(NO3) | is.na(PO4)) {
     
-    #P-limited
-    P_C_ratio <-
-      P_C(PO4)
-    
-    delta_DIC_bio <- 
-      PO4 / 
-      P_C_ratio
-    
-    delta_N_bio <- 
-      PO4 * N_P_hat
-    
-    return(list(delta_DIC_bio = delta_DIC_bio,
-                delta_N_bio = delta_N_bio))
+    return(list(delta_DIC_bio = NA,
+                delta_TA_bio = NA))
     
   } else {
     
-    #N-limited
-    N_C_ratio <-
-      N_C(NO3)
+    N_P_hat <-
+      N_P_expected(NO3 = NO3,
+                   PO4 = PO4)
     
-    delta_DIC_bio <- 
-      NO3 / 
-      N_C_ratio
-    
-    return(list(delta_DIC_bio = delta_DIC_bio,
-                delta_N_bio = NO3))
+    if ((NO3 / PO4) >= N_P_hat) {
+      
+      #P-limited
+      P_C_ratio <-
+        P_C(PO4)
+      
+      delta_DIC_bio <- 
+        PO4 / 
+        P_C_ratio
+      
+      delta_N_bio <- 
+        PO4 * N_P_hat
+      
+      return(list(delta_DIC_bio = delta_DIC_bio,
+                  delta_TA_bio = delta_N_bio))
+      
+    } else {
+      
+      #N-limited
+      N_C_ratio <-
+        N_C(NO3)
+      
+      delta_DIC_bio <- 
+        NO3 / 
+        N_C_ratio
+      
+      return(list(delta_DIC_bio = delta_DIC_bio,
+                  delta_TA_bio = NO3))
+      
+    }
     
   }
-  
+
 }

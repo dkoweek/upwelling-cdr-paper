@@ -30,7 +30,7 @@ run_or_load(data_directory = here::here("data", "working_data"),
             scripts_directory = here::here("scripts"), 
             "calculate_delta_nitrate.R")
 
-#----Load_phosphate_data----
+#----Load_salinity_data----
 run_or_load(data_directory = here::here("data", "working_data"), 
             "delta_P.rds", 
             scripts_directory = here::here("scripts"), 
@@ -54,8 +54,7 @@ grouping_columns <-
   c("lat",
     "lon",
     "depth_m",
-    "MLD", 
-    "months_MLD_data")
+    "MLD")
 
 delta_data <-
   delta_T %>%
@@ -75,6 +74,11 @@ delta_data <-
              delta_DIC,
              by = grouping_columns)
 
+#Remove data in the mixed layer
+delta_data <- 
+  delta_data %>% 
+  filter(depth_m >= MLD)
+
 #----Export_merged_data----
 
 #Save data set
@@ -89,5 +93,6 @@ rm(delta_T,
    delta_N,
    delta_P,
    delta_TA,
-   delta_DIC)
+   delta_DIC,
+   delta_data)
   

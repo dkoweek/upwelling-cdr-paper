@@ -9,9 +9,17 @@ pacman::p_load(tidyverse,
 
 
 
-#Load custom functions
+#Load custom functions for wrangling mixed layer data
 source(here::here("scripts",
                   "custom_functions.R"))
+
+#Load plankton growth model
+source(here::here("scripts",
+                  "plankton_growth_model.R"))
+
+#Load set of functions for calculating numerical derivatives
+source(here::here("scripts",
+                  "co2_deficit_functions.R"))
 
 #Load tables and parameters to be used through analysis
 source(here::here("scripts",

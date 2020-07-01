@@ -10,7 +10,7 @@ nitrate_data <-
 delta_N_data <- 
   delta_dataset(tidync_data = nitrate_data,
                 variable = "NO3",
-                nickname = "N")
+                nickname = "N") 
 
 #Save data set
 saveRDS(delta_N_data,

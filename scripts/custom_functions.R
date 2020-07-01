@@ -75,8 +75,9 @@ delta_dataset <- function(tidync_data, variable, nickname, ...) {
     group_by(lat, lon) %>% 
     nest() %>% 
     inner_join(., MLD_data, by = c("lat", "lon")) %>% #Merge with MLD data
+    select(-months_MLD_data) %>%  #only important for MLD diagnostics 
     mutate(!!ML_name := map2_dbl(data, MLD, mixed_layer_value),
-           !!delta_name := map2(data, !!as.name(ML_name), delta_value)) %>% 
+           !!delta_name := map2(data, !!as.name(ML_name), delta_value)) %>%
     unnest(col = c(data, !!delta_name)) %>% 
     ungroup()
     
