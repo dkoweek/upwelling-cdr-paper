@@ -32,12 +32,3 @@ MLD_data <-
   MLD_data %>% 
   mutate(lat = lat - 90.5, #first lat bin spans 90S - 89S, centered at 89.5S
          lon = lon - 180.5) #first lon bin spans 180-179W, centered at 179.5W
-
-#Save data set
-saveRDS(MLD_data,
-        here::here("data",
-                   "working_data",
-                   "MLD_data.rds"))
-
-#Clear memory
-rm(MLD_data)

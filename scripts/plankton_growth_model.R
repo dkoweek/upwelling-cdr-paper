@@ -77,7 +77,7 @@ plankton_biogeochem_model <- function(NO3, PO4) {
       delta_N_bio <- 
         PO4 * N_P_hat
       
-      return(list(delta_DIC_bio = delta_DIC_bio,
+      return(list(delta_DIC_bio = -delta_DIC_bio,
                   delta_TA_bio = delta_N_bio))
       
     } else {
@@ -90,7 +90,7 @@ plankton_biogeochem_model <- function(NO3, PO4) {
         NO3 / 
         N_C_ratio
       
-      return(list(delta_DIC_bio = delta_DIC_bio,
+      return(list(delta_DIC_bio = -delta_DIC_bio,
                   delta_TA_bio = NO3))
       
     }

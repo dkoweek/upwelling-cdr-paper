@@ -53,6 +53,7 @@ plankton_model <-
          dCO2_dDIC = pmap_dbl(list(T_midpt, S_midpt, TA_midpt, DIC_midpt, lon, lat),
                             dCO2_dDIC)
          ) %>% 
+  select(-c(T_midpt, S_midpt, TA_midpt, DIC_midpt)) %>% 
   mutate(CO2_deficit = #mol CO2 /kg SW
                         (dCO2_dT * delta_T) + 
                         (dCO2_dS * delta_S) +
