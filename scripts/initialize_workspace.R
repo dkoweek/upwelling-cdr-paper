@@ -1,4 +1,4 @@
-# Load necessary packages
+#----Load_necessary_packages----
 pacman::p_load(tidyverse,
                viridis,
                here,
@@ -7,7 +7,11 @@ pacman::p_load(tidyverse,
                RNetCDF,
                tidync)
 
+#----Load_project_directories----
+source(here::here("scripts",
+                  "project_directories.R"))
 
+#----Load_functions_and_data----
 
 #Load custom functions for wrangling data
 source(here::here("scripts",
@@ -25,7 +29,7 @@ source(here::here("scripts",
 source(here::here("scripts",
                   "load_depth_surface_matchup_table.R"))
 
-
+#----Print_session_info----
 # Print session info
 writeLines(capture.output(sessionInfo()),
            here::here("session_information.txt"))

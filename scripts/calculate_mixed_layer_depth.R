@@ -1,8 +1,9 @@
 #Load netCDF file
 mixed_layer_depth_data <- 
-  here::here("data",
-             "input_data",
-             "Argo_mixedlayers_monthlyclim_12112019.nc") %>% 
+  str_c(input_data_directory,
+        "/",
+        "Argo_mixedlayers_monthlyclim_12112019.nc",
+        sep = "") %>% 
   tidync()
 
 #Choose which method to use to define this data set

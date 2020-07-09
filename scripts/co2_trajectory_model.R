@@ -1,53 +1,36 @@
-#Model for mixed layer CO2 evolution
+#Functions for modeling evolution of mixed layer CO2 concentration
 
-initialize_ML_CO2 <- function(data_set) {
+#Determine the initial mixed layer temperature, salinity, TA, and DIC
+initialize_ML_concentrations <- function(data_set) {
   
-  
-  CO2_surf_field_0 <- 
+  surf_field_0 <- 
     data_set %>% 
     group_by(lat, lon) %>% 
     filter(depth_m <= MLD) %>% 
-    mutate(CO2 = carb(flag = 15,
-                      var1 = TA/1e6,
-                      var2 = DIC/1e6,
-                      S = S,
-                      T = T,
-                      Pt = PO4/1e6,
-                      warn = "n") %>% 
-                  pull(CO2),
-                  CO2 = CO2 * 1e6) %>%  #umol/kg
-    summarize(CO2_ML_0 = mean(CO2),
+    summarize(T_ML_0 = mean(T),
+              S_ML_0 = mean(S),
+              TA_ML_0 = mean(TA),
+              DIC_ML_0 = mean(DIC),
               .groups = "keep") %>% 
     ungroup()
   
   data_set %>% 
     left_join(.,
-              CO2_surf_field_0,
+              surf_field_0,
               by = c("lon", "lat")) %>% 
     return()
   
-
-
 }
 
-pumped_CO2_concentration <- function(data_set) {
+biological_uptake_potential <- function(data_set) {
   
   data_set %>% 
-    #Calculate changes to DIC and TA
+    #Calculate changes to DIC and TA due to biological productivity
     mutate(bio_uptake = map2(NO3, PO4, plankton_biogeochem_model)) %>% 
     mutate(delta_DIC_bio = map_dbl(bio_uptake, 1, pluck),
            delta_TA_bio = map_dbl(bio_uptake, 2, pluck)) %>% 
-    #Calculate pumped CO2 concentration after biological drawdown...
-    #...assume adiabatic transfer
-    mutate(CO2 = carb(flag = 15,
-                      var1 = (TA + delta_TA_bio) / 1e6,
-                      var2 = (DIC + delta_DIC_bio) / 1e6,
-                      S = S,
-                      T = T,
-                      Pt = PO4 / 1e6,
-                      warn = "n") %>%
-             pull(CO2) %>%
-             "*" (1e6)) %>% #umol/kg
+    mutate(DIC_pot = DIC + delta_DIC_bio,
+           TA_pot = TA + delta_TA_bio) %>% 
     select(-bio_uptake) %>% 
     return()
   
@@ -58,7 +41,6 @@ pumping_fraction <- function(n_pipes = 1, Q_dot = 1, area, MLD) {
   
   #n _pipes= number of pipes per 1x1 grid cell
   #m_dot = flow rate per pipe (m^3/s)
-  #rho = seawater density leaving pipe (kg/m^3)
   #area = grid cell area = f(latitude) (m^2)
   #MLD = mixed layer depth of grid cell (m)
   
@@ -74,33 +56,82 @@ pumping_fraction <- function(n_pipes = 1, Q_dot = 1, area, MLD) {
   
 }
 
-CO2_trajectory <- function(n_years, data_set,...) {
+mixed_layer_pumping_model <- function(n_years, n_pipes, Q_dot, data_set) {
   
-  
+  #Calculate mixing fraction and add pumping information to data frame
   data_set <- 
     data_set %>% 
-    mutate(f = pumping_fraction(area = area,
-                                MLD = MLD))
+    mutate(n_pipes = n_pipes,
+           Q_dot = Q_dot,
+           f = pumping_fraction(n_pipes = n_pipes,
+                                Q_dot = Q_dot,
+                                area = area,
+                                MLD = MLD),
+           n_years = n_years)
   
+  #For each year, for each variable, run the mixing model
   for (i in 1:n_years) {
+    for (j in c("T", "S", "TA", "DIC")) {
+      
+      
+      variable_year_name <- 
+        str_c(j,
+              "_ML_",
+              i,
+              sep = "")
+      
+      variable_previous_year_name <- 
+        str_c(j,
+              "_ML_",
+              i - 1,
+              sep = "")
+      
+      #If DIC or TA, need to mix in bottom water concentration after biological drawdown
+      if(j %in% c("T", "S")) {
+        mix_in_variable_name <- j
+      } else {
+        mix_in_variable_name <- 
+          str_c(j, "_pot", sep="")
+      }
+        
+      
+      data_set <- 
+        data_set %>% 
+        mutate(!!variable_year_name := 
+                 ((f * !!as.name(mix_in_variable_name)) + 
+                    ((1 - f) * !!as.name(variable_previous_year_name))))
+      
+    }
+  }
+  
+  return(data_set) 
+  
+}
+
+
+CO2_from_mixing_model <- function(data_set, n_years) {
+  
+  for (i in 0:n_years) {
     
-     
     CO2_year_name <- 
       str_c("CO2_ML_",
             i,
             sep = "")
     
-    CO2_previous_year_name <- 
-      str_c("CO2_ML_",
-            i - 1,
-            sep = "")
-    
     data_set <- 
       data_set %>% 
-      mutate(!!CO2_year_name := ((f * CO2) + ((1 - f) * !!as.name(CO2_previous_year_name))))
+      mutate(!!CO2_year_name :=
+               carb(flag = 15,
+                    var1 = !!as.name(str_c("TA_ML_",i,sep="")) / 1e6,
+                    var2 = !!as.name(str_c("DIC_ML_",i,sep="")) / 1e6,
+                    T = !!as.name(str_c("T_ML_",i,sep="")),
+                    S = !!as.name(str_c("S_ML_",i,sep="")),
+                    warn = "n") %>% 
+               pull(CO2) %>% 
+               "*" (1e6))
     
   }
   
-  return(data_set) 
+  return(data_set)
   
 }
