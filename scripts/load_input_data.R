@@ -97,6 +97,8 @@ input_data <-
   select(-months_MLD_data) %>%  #only important for MLD diagnostics 
   unnest(col = data) %>% 
   ungroup() %>% 
-  filter(depth_m >= MLD) %>% 
-  mutate(area = cell_grid_area(lat))
+  mutate(area = cell_grid_area(lat),
+         rho = swRho(salinity = S, #density when DOW reaches the surface
+                     temperature = T,
+                     pressure = 0))
 

@@ -5,7 +5,8 @@ pacman::p_load(tidyverse,
                seacarb,
                ncdf4,
                RNetCDF,
-               tidync)
+               tidync,
+               deSolve)
 
 #----Load_project_directories----
 source(here::here("scripts",
