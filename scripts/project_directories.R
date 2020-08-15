@@ -17,8 +17,3 @@ MODIS_directory <-
              "input_data",
              "Aqua_MODIS_PAR_climatology",
              "regridded")
-
-output_directory <- 
-  here::here("data",
-             "model_results")
-
