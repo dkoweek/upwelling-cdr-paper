@@ -1,9 +1,8 @@
 #Load netCDF file
 mixed_layer_depth_data <- 
   str_c(input_data_directory,
-        "/",
         "Argo_mixedlayers_monthlyclim_12112019.nc",
-        sep = "") %>% 
+        sep = "/") %>% 
   tidync()
 
 #Choose which method to use to define this data set
@@ -15,20 +14,16 @@ if(method == "algorithm") {
   MLD_var = "mld_dt_mean"
 }
 
-
-#Calculate annual mean MLD data from monthly-resolved MLD data
+#Load monthly MLD data
 MLD_data <- 
   mixed_layer_depth_data %>% 
   hyper_tibble(select_var = MLD_var) %>% 
   rename(lon = iLON,
-         lat = iLAT) %>% 
-  group_by(lon, lat) %>% 
-  summarise(MLD = mean(!!as.name(MLD_var)),
-            months_MLD_data = n_distinct(iMONTH),
-            .groups = "keep") %>% 
-  ungroup() 
+         lat = iLAT,
+         month = iMONTH,
+         depth_MLD = mld_da_mean)
 
-#Wrangle lat/lon data to match GLODAP data
+#Reset lat/lon to actual coordinates
 MLD_data <- 
   MLD_data %>% 
   mutate(lat = lat - 90.5, #first lat bin spans 90S - 89S, centered at 89.5S

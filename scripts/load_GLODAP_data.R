@@ -57,10 +57,6 @@ TA_file <-
   hyper_tibble(select_var = "TAlk") %>% 
   rename(TA = TAlk)
 
-#----Load_mixed_layer_depth_data_set----
-source(here::here("scripts",
-                  "calculate_mixed_layer_depth.R"))
-
 #----Merge_data_sets----
 
 grouping_columns <- 
@@ -68,7 +64,7 @@ grouping_columns <-
     "lat",
     "depth_surface")
 
-input_data <- 
+GLODAP_data <- 
   temperature_file %>% 
   inner_join(.,
              salinity_file,
@@ -91,14 +87,7 @@ input_data <-
   select(-depth_surface) %>% #drop unnecessary columns to save memory
   mutate(lon = case_when(lon >=180 ~ lon - 360, #Adjust to E/W coordinates
                          TRUE ~ as.numeric(lon))) %>% 
-  group_by(lat, lon) %>% 
-  nest() %>% 
-  inner_join(., MLD_data, by = c("lat", "lon")) %>% #Merge with MLD data
-  select(-months_MLD_data) %>%  #only important for MLD diagnostics 
-  unnest(col = data) %>% 
-  ungroup() %>% 
   mutate(area = cell_grid_area(lat),
          rho = swRho(salinity = S, #density when DOW reaches the surface
                      temperature = T,
                      pressure = 0))
-

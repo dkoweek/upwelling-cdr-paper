@@ -22,10 +22,6 @@ source(here::here("scripts",
 source(here::here("scripts",
                   "plankton_growth_model.R"))
 
-#Load set of functions for calculating CO2 trajectory in the mixed layer
-source(here::here("scripts",
-                  "co2_trajectory_model.R"))
-
 #Load tables and parameters to be used through analysis
 source(here::here("scripts",
                   "load_depth_surface_matchup_table.R"))
