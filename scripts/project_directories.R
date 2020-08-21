@@ -15,5 +15,4 @@ ML_climatology_directory <-
 MODIS_directory <- 
   here::here("data",
              "input_data",
-             "Aqua_MODIS_PAR_climatology",
-             "regridded")
+             "Aqua_MODIS_PAR_climatology")

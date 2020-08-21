@@ -1,6 +1,8 @@
 #----Match_file_to_month----
 monthly_PAR_grids <- 
-  list.files(MODIS_directory)
+  list.files(str_c(MODIS_directory,
+                   "regridded",
+                   sep="/"))
 
 month_index <-
   str_sub(monthly_PAR_grids,
@@ -15,6 +17,7 @@ for (i in 1:length(monthly_PAR_grids)) {
   
   df <- 
     tidync(str_c(MODIS_directory,
+                 "regridded",
                  monthly_PAR_grids[i],
                  sep="/")) %>% 
     hyper_tibble() %>% 

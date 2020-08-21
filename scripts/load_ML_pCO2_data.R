@@ -3,7 +3,7 @@
 
 #----Open_as_tibble----
 mixed_layer_chemistry_data_file <-
-  str_c(input_data_directory,
+  str_c(ML_climatology_directory,
         "TALK_TCO2_pCO2_GLOB_Grid_Dat_regridded.nc",
         sep = "/")
 
