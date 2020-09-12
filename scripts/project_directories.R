@@ -16,3 +16,9 @@ MODIS_directory <-
   here::here("data",
              "input_data",
              "Aqua_MODIS_PAR_climatology")
+
+BG_directory <- 
+  here::here("data",
+             "input_data",
+             "BG_provinces",
+             "longhurst_v4_2010")

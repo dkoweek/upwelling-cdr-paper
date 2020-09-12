@@ -6,7 +6,9 @@ pacman::p_load(tidyverse,
                ncdf4,
                RNetCDF,
                tidync,
-               deSolve)
+               deSolve,
+               pangaear,
+               sf)
 
 #----Load_project_directories----
 source(here::here("scripts",
