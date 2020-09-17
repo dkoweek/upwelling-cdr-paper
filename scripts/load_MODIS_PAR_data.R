@@ -35,4 +35,5 @@ PAR_climatology_list <-
 PAR_climatology <- 
   do.call(rbind.data.frame,
           PAR_climatology_list) %>% 
-  as_tibble()
+  as_tibble() %>% 
+  rename(E = par)

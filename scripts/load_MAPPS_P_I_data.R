@@ -31,7 +31,8 @@ MAPPS_data <-
          BG_province = `BG province`) %>% 
   mutate(ymd = lubridate::ymd(`Date/Time`),
          year = lubridate::year(ymd),
-         month = as.integer(lubridate::month(ymd))) %>% 
+         month = as.integer(lubridate::month(ymd)),
+         E_k = E_k * ((24 * 3600) / 1e6)) %>% #umol/m^2/s -> mol/m^2/d (to align with MODIS data) 
   group_by(BG_province) %>% 
   nest() %>% 
   left_join(.,
@@ -42,9 +43,9 @@ MAPPS_data <-
   ungroup() %>% 
   mutate(hemisphere = case_when(lat < 0 ~ "S",
                                 TRUE ~ "N"),
-         season = case_when(month %in% c(3,5) ~ "MAM",
-                            month %in% c(6,8) ~ "JJA",
-                            month %in% c(9,11) ~ "SON",
+         season = case_when(month %in% c(3,4,5) ~ "MAM",
+                            month %in% c(6,7,8) ~ "JJA",
+                            month %in% c(9,10,11) ~ "SON",
                             TRUE ~ "DJF")) %>% 
   mutate(season = factor(season, levels = c("DJF",
                                             "MAM",
@@ -73,15 +74,19 @@ E_k_medians <-
 E_k_interpolated <- 
   E_k_medians %>% 
   filter(hemisphere == "S",
-         domains %in% c("P", "C"),
-         season %in% c("MAM", "SON")) %>% 
+         domains %in% c("T", "C")) %>% 
   group_by(domains) %>% 
   summarize(E_k_median = mean(E_k_median),
             .groups = "keep") %>% 
-  mutate(season = factor("JJA"),
+  mutate(season = factor("DJF"),
          hemisphere = factor("S")) %>% 
   relocate(E_k_median, .after = season) %>% 
-  relocate(hemisphere, .before = season)
+  relocate(hemisphere, .before = season) %>% 
+  bind_rows(., (.)%>% mutate(season = factor("JJA"))) %>% 
+  ungroup() %>% 
+  slice(-3)
+  
+
 
 #Return interpolated results to summary table
 E_k_medians <-
