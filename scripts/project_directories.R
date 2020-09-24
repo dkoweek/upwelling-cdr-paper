@@ -2,6 +2,10 @@ input_data_directory <-
   here::here("data",
              "input_data")
 
+working_data_directory <- 
+  here::here("data",
+             "working_data")
+
 GLODAP_directory <- 
   here::here("data",
              "input_data",

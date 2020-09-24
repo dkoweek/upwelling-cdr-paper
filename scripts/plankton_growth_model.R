@@ -1,3 +1,4 @@
+#----Galbraith_Martiny_2015----
 #Plankton growth models from:
 #Galbraith, Eric D., and Adam C. Martiny. 
 #"A simple nutrient-dependence mechanism for predicting the stoichiometry...
@@ -53,48 +54,61 @@ N_P_expected <- function(NO3, PO4) {
 
 plankton_biogeochem_model <- function(NO3, PO4) {
   
-  if(is.na(NO3) | is.na(PO4)) {
-    
-    return(list(delta_DIC_bio = NA,
-                delta_TA_bio = NA))
-    
-  } else {
+  # if(is.na(NO3) | is.na(PO4)) {
+  #   
+  #   return(list(delta_DIC_bio = NA,
+  #               delta_TA_bio = NA))
+  #   
+  # } else {
     
     N_P_hat <-
       N_P_expected(NO3 = NO3,
                    PO4 = PO4)
     
-    if ((NO3 / PO4) >= N_P_hat) {
+    P_limited <- 
+      if_else((NO3 / PO4) >= N_P_hat, 1, 0) 
       
       #P-limited
       P_C_ratio <-
         P_C(PO4)
       
-      delta_DIC_bio <- 
+      delta_DIC_bio_P_limited <- 
         PO4 / 
         P_C_ratio
       
-      delta_N_bio <- 
+      delta_N_bio_P_limited <- 
         PO4 * N_P_hat
       
-      return(list(delta_DIC_bio = -delta_DIC_bio,
-                  delta_TA_bio = delta_N_bio))
       
-    } else {
-      
+    N_limited <- 
+      if_else((NO3 / PO4) >= N_P_hat, 0, 1)
+        
       #N-limited
       N_C_ratio <-
         N_C(NO3)
       
-      delta_DIC_bio <- 
+      delta_DIC_bio_N_limited <- 
         NO3 / 
         N_C_ratio
       
-      return(list(delta_DIC_bio = -delta_DIC_bio,
-                  delta_TA_bio = NO3))
-      
-    }
+      delta_N_bio_N_limited <- 
+        NO3
     
-  }
-
+    #Combine results    
+    delta_DIC_bio <- 
+      -1* (
+        (P_limited * delta_DIC_bio_P_limited) + 
+          (N_limited * delta_DIC_bio_N_limited)
+      )
+      
+    delta_TA_bio <- 
+      (
+        (P_limited * delta_N_bio_P_limited) + 
+          (N_limited * delta_N_bio_N_limited)
+      )
+      
+    
+      return(list(delta_DIC_bio = delta_DIC_bio,
+                  delta_TA_bio = delta_TA_bio))
+      
 }

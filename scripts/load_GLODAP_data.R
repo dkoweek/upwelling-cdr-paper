@@ -86,8 +86,4 @@ GLODAP_data <-
             by = "depth_surface") %>% 
   select(-depth_surface) %>% #drop unnecessary columns to save memory
   mutate(lon = case_when(lon >=180 ~ lon - 360, #Adjust to E/W coordinates
-                         TRUE ~ as.numeric(lon))) %>% 
-  mutate(area = cell_grid_area(lat),
-         rho = swRho(salinity = S, #density when DOW reaches the surface
-                     temperature = T,
-                     pressure = 0))
+                         TRUE ~ as.numeric(lon)))

@@ -27,3 +27,15 @@ mixed_layer_chemistry_data <-
   mixed_layer_chemistry_data %>% 
   left_join(., timescale, by = "time") %>%
   select(-time)
+
+#----Calculate_CO2_concentration----
+#Saves time to calculate ML CO2 before CO2 gradient calculations
+
+mixed_layer_chemistry_data <- 
+  mixed_layer_chemistry_data %>% 
+  mutate(K_0 = K0(S = sss,
+                  T = sst,
+                  P = 0,
+                  warn = "n"),
+         CO2 = K_0 * (pco2_wat_sst / 1e6),
+         CO2 = as.numeric(CO2))
