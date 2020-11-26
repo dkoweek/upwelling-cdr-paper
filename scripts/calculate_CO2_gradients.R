@@ -23,9 +23,9 @@ delta_CO2_grid <-
   delta_CO2_grid %>% 
   mutate(
          #Maximum potential biogeochemical change
-         delta_DIC_bio_max = plankton_biogeochem_model(NO3 = NO3,
+         delta_DIC_bio_max = galbraith_biogeochemical_model(NO3 = NO3,
                                                 PO4 = PO4) %>% pluck(1),
-         delta_TA_bio_max = plankton_biogeochem_model(NO3 = NO3,
+         delta_TA_bio_max = galbraith_biogeochemical_model(NO3 = NO3,
                                                PO4 = PO4) %>% pluck(2),
          #Add in light limitation
          delta_DIC_bio = epsilon * delta_DIC_bio_max, 
