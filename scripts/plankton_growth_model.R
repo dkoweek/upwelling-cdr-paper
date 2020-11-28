@@ -49,7 +49,7 @@ N_P_expected <- function(NO3, PO4) {
   
 } 
 
-galbraith_biogeochemical_model <- function(NO3, PO4) {
+galbraith_model <- function(NO3, PO4) {
   
     
     N_P_hat <-
@@ -147,7 +147,7 @@ garcia_df <-
 
 
 
-garcia_biogeochemical_model <- function(NO3, PO4, percentile = 0.5) {
+garcia_model <- function(NO3, PO4, percentile = 0.5) {
   
   #Grab the N_P ratio matching the input percentile
   data <- 
@@ -207,3 +207,53 @@ garcia_biogeochemical_model <- function(NO3, PO4, percentile = 0.5) {
 }
 
 
+
+#----Redfield_1934----
+
+redfield_model <- function(NO3, PO4) {
+  
+  redfield_C_N <- 106 / 16
+  
+  redfield_N_P <- 16
+  
+  #Calculate the DIC and TA changes from both N and P limitation
+  P_limited <-
+    if_else((NO3 / PO4) >= redfield_N_P, 1, 0)
+  
+  #P-limited
+  delta_DIC_bio_P_limited <- 
+    redfield_C_N * redfield_N_P * PO4
+  
+  delta_N_bio_P_limited <- 
+    redfield_N_P * PO4
+  
+  N_limited <- 
+    if_else((NO3 / PO4) >= redfield_N_P, 0, 1)
+  
+  #N-limited
+  delta_DIC_bio_N_limited <- 
+    redfield_C_N * NO3
+  
+  delta_N_bio_N_limited <- 
+    NO3
+  
+  #Combine N and P limitation calculations in vectorized fashion
+  #Ultimate result is DIC or TA modification due to only N OR P limitation, not both
+  delta_DIC_bio <- 
+    -1* (
+      (P_limited * delta_DIC_bio_P_limited) + 
+        (N_limited * delta_DIC_bio_N_limited)
+    )
+  
+  delta_TA_bio <- 
+    (
+      (P_limited * delta_N_bio_P_limited) + 
+        (N_limited * delta_N_bio_N_limited)
+    )
+  
+  
+  return(list(delta_DIC_bio = delta_DIC_bio,
+              delta_TA_bio = delta_TA_bio))
+  
+  
+}

@@ -1,11 +1,11 @@
-#Load netCDF file
+#----Load_netCDF_file----
 mixed_layer_depth_data <- 
   str_c(input_data_directory,
         "Argo_mixedlayers_monthlyclim_12112019.nc",
         sep = "/") %>% 
   tidync()
 
-#Choose which method to use to define this data set
+#----Choose_method----
 method <- "algorithm"
 
 if(method == "algorithm") {
@@ -14,7 +14,7 @@ if(method == "algorithm") {
   MLD_var = "mld_dt_mean"
 }
 
-#Load monthly MLD data
+#----Load_monthly_MLD_data----
 MLD_data <- 
   mixed_layer_depth_data %>% 
   hyper_tibble(select_var = MLD_var) %>% 
@@ -23,6 +23,45 @@ MLD_data <-
          month = iMONTH,
          depth_MLD = mld_da_mean)
 
+#----Interpolate_through_missing_values----
+interpolate_MLD <- function(data) {
+  
+  #If only one observation, take that for the entire year
+  if(nrow(data)==1) {
+    
+    return(tibble(month = seq(1,12),
+                  depth_MLD = data[["depth_MLD"]]))
+  
+      
+  } 
+  #Otherwise, linearly interpolate through the values
+  else {
+    
+    interpolated_MLD <- 
+      approx(x = data[["month"]],
+             y = data[["depth_MLD"]],
+             xout = seq(1,12),
+             method = "linear",
+             rule = 2)
+    
+    return(tibble(month = interpolated_MLD[["x"]],
+                  depth_MLD = interpolated_MLD[["y"]]))
+    
+    
+  }
+  
+}
+
+
+MLD_data <- 
+  MLD_data %>% 
+  group_by(lon, lat) %>% 
+  nest() %>% 
+  mutate(data = map(data, interpolate_MLD)) %>% 
+  unnest(data)
+  
+
+#----Adjust_lat_lon----  
 #Reset lat/lon to actual coordinates
 MLD_data <- 
   MLD_data %>% 

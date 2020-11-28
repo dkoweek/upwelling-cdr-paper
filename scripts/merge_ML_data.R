@@ -1,7 +1,7 @@
 #----Merge_chemistry_MLD_PAR_data----
-#Load Takahashi et al. mixed layer chemistry climatology
+#Load OceanSODA-ETHZ surface layer pCO2 climatology
 source(here::here("scripts",
-                  "load_ML_pCO2_data.R"))
+                  "load_OceanSODA_ETHZ.R"))
 
 #Load mixed layer depth climatology
 source(here::here("scripts",

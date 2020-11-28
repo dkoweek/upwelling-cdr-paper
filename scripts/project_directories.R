@@ -11,6 +11,11 @@ GLODAP_directory <-
              "input_data",
              "GLODAPV2.2016b_MappedClimatologies")
 
+OceanSODA_ETHZ_directory <- 
+  here::here("data",
+             "input_data",
+             "OceanSODA_ETHZ")
+
 ML_climatology_directory <- 
   here::here("data",
              "input_data",
