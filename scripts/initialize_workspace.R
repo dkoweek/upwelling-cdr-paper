@@ -1,5 +1,6 @@
 #----Load_necessary_packages----
 pacman::p_load(tidyverse,
+               lubridate,
                viridis,
                here,
                seacarb,
@@ -20,9 +21,13 @@ source(here::here("scripts",
 source(here::here("scripts",
                   "custom_functions.R"))
 
-#Load plankton growth model
+#Load plankton nutrient model
 source(here::here("scripts",
-                  "plankton_growth_model.R"))
+                  "plankton_nutrient_model.R"))
+
+#Load macroalgae nutrient model
+source(here::here("scripts",
+                  "macroalgae_nutrient_model.R"))
 
 #Load tables and parameters to be used through analysis
 source(here::here("scripts",
