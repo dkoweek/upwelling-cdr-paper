@@ -136,24 +136,28 @@ garcia_df <-
          C_P = `C:P`)  %>% 
   slice(-1)
 
-#Arrange data frame by N:P ratio
-N_P_ecdf <- 
-  ecdf(garcia_df$N_P)
+#C:P vs. N:P
+garcia_c_n_p_regression <-
+  lm(C_P ~ N_P, 
+     data = garcia_df)
 
-garcia_df <-
-  garcia_df %>% 
-  mutate(N_P_quantile = N_P_ecdf(N_P)) %>% 
-  arrange(N_P_quantile)
+#Summarize N:P and then calculate C:P at summary statistic values
+garcia_summary <- 
+  summary(garcia_df$N_P) %>% 
+  tidy() %>% 
+  pivot_longer(cols = minimum:maximum,
+               names_to = "statistic",
+               values_to = "N_P") %>% 
+  mutate(C_P = predict(object = garcia_c_n_p_regression,
+                       newdata = .))
 
 
-
-garcia_model <- function(NO3, PO4, percentile = 0.5) {
+garcia_model <- function(NO3, PO4, metric = "median") {
   
-  #Grab the N_P ratio matching the input percentile
+  #Grab the N_P and C_P ratio matching the statistic
   data <- 
-    garcia_df %>% 
-    mutate(quantile_diff = abs(percentile - N_P_quantile)) %>% 
-    slice(which.min(quantile_diff))
+    garcia_summary %>% 
+    filter(statistic == metric)
   
   N_P_hat <- 
     data %>%
@@ -180,6 +184,7 @@ garcia_model <- function(NO3, PO4, percentile = 0.5) {
     #N-limited
     delta_DIC_bio_N_limited <- 
     data %>% 
+    mutate(C_N = C_P / N_P) %>% 
     pull(C_N) %>% 
     `*`(NO3)
     

@@ -1,7 +1,7 @@
 #Wrangle data from Atkinson and Smith 1983
 
-
-atkinson_df <- 
+#Read in data
+atkinson_df_all <- 
   read_csv(file = str_c(input_data_directory,
                         "Atkinson_Smith_1983.csv",
                         sep = "/"),
@@ -25,25 +25,37 @@ atkinson_df <-
   select(-C_N) %>% 
   mutate(C_P = as.numeric(C_P),
          N_P = as.numeric(N_P),
-         C_N = C_P / N_P) %>% 
-  filter(Phylum %in% c("P", "Ch"))
+         C_N = C_P / N_P)
 
-#Arrange data frame by N:P ratio
-N_P_ecdf <- 
-  ecdf(atkinson_df$N_P)
+#Select all of the macroalgal phyla
+atkinson_macroalgae_df <- 
+  atkinson_df_all %>% 
+  filter(Phylum %in% c("P", "Ch", "R")) %>% 
+  filter(N_P < 150)  #Remove outlier
 
-atkinson_df <-
-  atkinson_df %>% 
-  mutate(N_P_quantile = N_P_ecdf(N_P)) %>% 
-  arrange(N_P_quantile)
+#C:P vs. N:P
+atkinson_macroalgae_regression <-
+  lm(C_P ~ N_P, 
+     data = atkinson_macroalgae_df)
 
-atkinson_model <- function(NO3, PO4, percentile = 0.5) {
+#Summarize N:P and then calculate C:P at summary statistic values
+atkinson_maroalgae_summary <- 
+  summary(atkinson_macroalgae_df$N_P) %>% 
+  tidy() %>% 
+  pivot_longer(cols = minimum:maximum,
+               names_to = "statistic",
+               values_to = "N_P") %>% 
+  mutate(C_P = predict(object = atkinson_macroalgae_regression,
+                       newdata = .))
+
+
+#Function for converting nutrient ratio model into DIC and TA uptake
+atkinson_model <- function(NO3, PO4, metric = "median") {
   
-  #Grab the N_P ratio matching the input percentile
+  #Grab the N_P and C_P ratio matching the statistic
   data <- 
-    atkinson_df %>% 
-    mutate(quantile_diff = abs(percentile - N_P_quantile)) %>% 
-    slice(which.min(quantile_diff))
+    atkinson_maroalgae_summary %>% 
+    filter(statistic == metric)
   
   N_P_hat <- 
     data %>%
@@ -70,6 +82,7 @@ atkinson_model <- function(NO3, PO4, percentile = 0.5) {
   #N-limited
   delta_DIC_bio_N_limited <- 
     data %>% 
+    mutate(C_N = C_P / N_P) %>% 
     pull(C_N) %>% 
     `*`(NO3)
   
