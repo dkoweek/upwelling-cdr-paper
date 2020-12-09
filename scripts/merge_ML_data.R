@@ -57,7 +57,7 @@ mixed_layer_data <-
 
 #----Assign_E_k_value----
 source(here::here("scripts",
-                  "load_MAPPS_P_I_data.R"))
+                  "load_E_k_data.R"))
 
 mixed_layer_data <- 
   mixed_layer_data %>% 
@@ -76,10 +76,10 @@ mixed_layer_data <-
             E_k_medians,
             by = c("domains",
                    "hemisphere",
-                   "season")) %>% 
-  dplyr::rename(E_k = E_k_median)
+                   "season"))
 
 #----Calculate_monthly_light_limitation----
 mixed_layer_data <- 
   mixed_layer_data %>% 
-  mutate(epsilon = tanh(E/E_k))
+  mutate(epsilon_micro = tanh(E / E_k_median_micro),
+         epsilon_macro = tanh(E / E_k_median_macro))

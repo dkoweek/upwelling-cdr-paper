@@ -1,6 +1,8 @@
-# Load MAPPS database of global P-I measurements
-
 #-----Load_MAPPS_data----
+# Load MAPPS database of global P-I measurements for phytoplankton communities
+# Bouman, HA et al. (2018): Photosynthesis-irradiance parameters...
+#...of marine phytoplankton: synthesis of a global data set. 
+# Earth System Science Data, 10, 251-266
 
 MAPPS_list <-
   pg_data(doi = "10.1594/PANGAEA.874087")
@@ -67,7 +69,7 @@ E_k_boxplots <-
 E_k_medians <- 
   MAPPS_data %>% 
   group_by(domains, hemisphere, season) %>% 
-  summarize(E_k_median = median(E_k), 
+  summarize(E_k_median_micro = median(E_k), 
             .groups = "keep")
 
 #Interpolate for missing domain/seasons/hemisphere 
@@ -76,18 +78,16 @@ E_k_interpolated <-
   filter(hemisphere == "S",
          domains %in% c("T", "C")) %>% 
   group_by(domains) %>% 
-  summarize(E_k_median = mean(E_k_median),
+  summarize(E_k_median_micro = mean(E_k_median_micro),
             .groups = "keep") %>% 
   mutate(season = factor("DJF"),
          hemisphere = factor("S")) %>% 
-  relocate(E_k_median, .after = season) %>% 
+  relocate(E_k_median_micro, .after = season) %>% 
   relocate(hemisphere, .before = season) %>% 
   bind_rows(., (.)%>% mutate(season = factor("JJA"))) %>% 
   ungroup() %>% 
   slice(-3)
   
-
-
 #Return interpolated results to summary table
 E_k_medians <-
   bind_rows(E_k_medians,
@@ -95,3 +95,22 @@ E_k_medians <-
   arrange(domains,
           hemisphere,
           season)
+
+#----Add_E_k_for_macroalgae----
+#The E_k from two studies focused on red, green, and brown macroalgae...
+#...find a pretty consistent median E_k of 125 umol photons/m^2/s
+
+#Johansson, G., and P. Snoeijs. "Macroalgal photosynthetic responses...
+#to light in relation to thallus morphology and depth zonation."...
+#Marine Ecology Progress Series 244 (2002): 63-72.
+#(n=35 samples from the Baltic Sea area)
+
+#Gómez, Iván, et al. "Patterns of photosynthesis in 18 species of...
+#intertidal macroalgae from southern Chile." ...
+#Marine Ecology Progress Series 270 (2004): 103-116.
+
+E_k_median_macro <- 125 #umol/m2/s
+
+E_k_medians <- 
+  E_k_medians %>% 
+  mutate(E_k_median_macro = E_k_median_macro * ((24 * 3600) / 1e6)) #umol/m^2/s -> mol/m^2/d (to align with MODIS data)
