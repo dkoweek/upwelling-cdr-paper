@@ -39,14 +39,14 @@ atkinson_macroalgae_regression <-
      data = atkinson_macroalgae_df)
 
 #Summarize N:P and then calculate C:P at summary statistic values
-atkinson_maroalgae_summary <- 
+atkinson_macroalgae_summary <- 
   summary(atkinson_macroalgae_df$N_P) %>% 
-  tidy() %>% 
+  broom::tidy() %>% 
   pivot_longer(cols = minimum:maximum,
                names_to = "statistic",
                values_to = "N_P") %>% 
-  mutate(C_P = predict(object = atkinson_macroalgae_regression,
-                       newdata = .))
+  mutate(C_P = as.numeric(predict(object = atkinson_macroalgae_regression,
+                       newdata = .)))
 
 
 #Function for converting nutrient ratio model into DIC and TA uptake
@@ -54,7 +54,7 @@ atkinson_model <- function(NO3, PO4, metric = "median") {
   
   #Grab the N_P and C_P ratio matching the statistic
   data <- 
-    atkinson_maroalgae_summary %>% 
+    atkinson_macroalgae_summary %>% 
     filter(statistic == metric)
   
   N_P_hat <- 
