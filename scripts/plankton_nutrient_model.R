@@ -148,8 +148,8 @@ garcia_summary <-
   pivot_longer(cols = minimum:maximum,
                names_to = "statistic",
                values_to = "N_P") %>% 
-  mutate(C_P = predict(object = garcia_c_n_p_regression,
-                       newdata = .))
+  mutate(C_P = as.numeric(predict(object = garcia_c_n_p_regression,
+                       newdata = .)))
 
 
 garcia_model <- function(NO3, PO4, metric = "median") {
