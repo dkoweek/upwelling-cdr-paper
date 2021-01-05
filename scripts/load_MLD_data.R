@@ -21,7 +21,7 @@ MLD_data <-
   rename(lon = iLON,
          lat = iLAT,
          month = iMONTH,
-         depth_MLD = mld_da_mean)
+         MLD = mld_da_mean)
 
 #----Interpolate_through_missing_values----
 interpolate_MLD <- function(data) {
@@ -30,7 +30,8 @@ interpolate_MLD <- function(data) {
   if(nrow(data)==1) {
     
     return(tibble(month = seq(1,12),
-                  depth_MLD = data[["depth_MLD"]]))
+                  MLD = data[["MLD"]],
+                  MLD_max = data[["MLD"]]))
   
       
   } 
@@ -39,13 +40,14 @@ interpolate_MLD <- function(data) {
     
     interpolated_MLD <- 
       approx(x = data[["month"]],
-             y = data[["depth_MLD"]],
+             y = data[["MLD"]],
              xout = seq(1,12),
              method = "linear",
              rule = 2)
     
     return(tibble(month = interpolated_MLD[["x"]],
-                  depth_MLD = interpolated_MLD[["y"]]))
+                  MLD = interpolated_MLD[["y"]],
+                  MLD_max = max(interpolated_MLD[["y"]])))
     
     
   }
