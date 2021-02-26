@@ -155,62 +155,56 @@ garcia_summary <-
 garcia_model <- function(NO3, PO4, metric = "median") {
   
   #Grab the N_P and C_P ratio matching the statistic
-  data <- 
+  N_P <- 
     garcia_summary %>% 
-    filter(statistic == metric)
+    filter.(statistic == metric) %>% 
+    pull.(N_P)
   
-  N_P_hat <- 
-    data %>%
-    pull(N_P)
+  C_P <- 
+    garcia_summary %>% 
+    filter.(statistic == metric) %>% 
+    pull.(C_P)
   
   #Calculate the DIC and TA changes from both N and P limitation
   P_limited <-
-    if_else((NO3 / PO4) >= N_P_hat, 1, 0)
+    if_else((NO3 / PO4) >= N_P, 1, 0)
   
-    #P-limited
-    delta_DIC_bio_P_limited <- 
-      data %>% 
-      pull(C_P) %>% 
-      `*`(PO4)
-    
-    delta_N_bio_P_limited <- 
-      data %>% 
-      pull(N_P) %>% 
-      `*`(PO4)
+  #P-limited
+  delta_DIC_bio_P_limited <- 
+    C_P * PO4
+  
+  delta_N_bio_P_limited <- 
+    N_P * PO4
   
   N_limited <- 
-    if_else((NO3 / PO4) >= N_P_hat, 0, 1)
+    if_else((NO3 / PO4) > N_P, 0, 1)
   
-    #N-limited
-    delta_DIC_bio_N_limited <- 
-    data %>% 
-    mutate(C_N = C_P / N_P) %>% 
-    pull(C_N) %>% 
-    `*`(NO3)
-    
-    delta_N_bio_N_limited <- 
+  #N-limited
+  delta_DIC_bio_N_limited <- 
+    (C_P / N_P) * NO3
+  
+  delta_N_bio_N_limited <- 
     NO3
   
   #Combine N and P limitation calculations in vectorized fashion
   #Ultimate result is DIC or TA modification due to only N OR P limitation, not both
   delta_DIC_bio <- 
     -1* (
-        (P_limited * delta_DIC_bio_P_limited) + 
-          (N_limited * delta_DIC_bio_N_limited)
-      )
-    
+      (P_limited * delta_DIC_bio_P_limited) + 
+        (N_limited * delta_DIC_bio_N_limited)
+    )
+  
   delta_TA_bio <- 
     (
-        (P_limited * delta_N_bio_P_limited) + 
-          (N_limited * delta_N_bio_N_limited)
+      (P_limited * delta_N_bio_P_limited) + 
+        (N_limited * delta_N_bio_N_limited)
     )
-    
-    
+  
+  
   return(list(delta_DIC_bio = delta_DIC_bio,
               delta_TA_bio = delta_TA_bio))
   
 }
-
 
 
 #----Redfield_1934----

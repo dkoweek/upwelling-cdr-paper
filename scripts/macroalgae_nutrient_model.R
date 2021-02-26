@@ -53,38 +53,33 @@ atkinson_macroalgae_summary <-
 atkinson_model <- function(NO3, PO4, metric = "median") {
   
   #Grab the N_P and C_P ratio matching the statistic
-  data <- 
+  N_P <- 
     atkinson_macroalgae_summary %>% 
-    filter(statistic == metric)
+    filter.(statistic == metric) %>% 
+    pull.(N_P)
   
-  N_P_hat <- 
-    data %>%
-    pull(N_P)
+  C_P <- 
+    atkinson_macroalgae_summary %>% 
+    filter.(statistic == metric) %>% 
+    pull.(C_P)
   
   #Calculate the DIC and TA changes from both N and P limitation
   P_limited <-
-    if_else((NO3 / PO4) >= N_P_hat, 1, 0)
+    if_else((NO3 / PO4) >= N_P, 1, 0)
   
   #P-limited
   delta_DIC_bio_P_limited <- 
-    data %>% 
-    pull(C_P) %>% 
-    `*`(PO4)
+    C_P * PO4
   
   delta_N_bio_P_limited <- 
-    data %>% 
-    pull(N_P) %>% 
-    `*`(PO4)
+    N_P * PO4
   
   N_limited <- 
-    if_else((NO3 / PO4) >= N_P_hat, 0, 1)
+    if_else((NO3 / PO4) > N_P, 0, 1)
   
   #N-limited
   delta_DIC_bio_N_limited <- 
-    data %>% 
-    mutate(C_N = C_P / N_P) %>% 
-    pull(C_N) %>% 
-    `*`(NO3)
+    (C_P / N_P) * NO3
   
   delta_N_bio_N_limited <- 
     NO3
