@@ -156,14 +156,10 @@ garcia_model <- function(NO3, PO4, metric = "median") {
   
   #Grab the N_P and C_P ratio matching the statistic
   N_P <- 
-    garcia_summary %>% 
-    filter.(statistic == metric) %>% 
-    pull.(N_P)
+    garcia_summary[[which(garcia_summary[["statistic"]] == metric),"N_P"]]
   
   C_P <- 
-    garcia_summary %>% 
-    filter.(statistic == metric) %>% 
-    pull.(C_P)
+    garcia_summary[[which(garcia_summary[["statistic"]] == metric),"C_P"]]
   
   #Calculate the DIC and TA changes from both N and P limitation
   P_limited <-

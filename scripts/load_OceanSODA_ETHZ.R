@@ -38,6 +38,17 @@ mixed_layer_chemistry_data <-
                    .groups = "keep") %>% 
   ungroup()
 
+#----Keep_locations_with_12_month_of_data----
+mixed_layer_chemistry_data <- 
+  mixed_layer_chemistry_data %>% 
+  group_by(lon, lat) %>% 
+  nest() %>% 
+  mutate(n_months = map_dbl(data, nrow)) %>% 
+  filter(n_months == 12) %>% 
+  unnest(cols = data) %>% 
+  ungroup() %>% 
+  select(-n_months)
+
 #----Calculate_CO2_concentration----
 #Saves time to calculate ML CO2 before CO2 gradient calculations
 

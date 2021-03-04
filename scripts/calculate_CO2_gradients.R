@@ -1,119 +1,122 @@
 #----Load_the_initialized_grid----
-readRDS(file = str_c(working_data_directory,
-                     "delta_CO2_grid_initial.RDS",
-                     sep = "/"))
+delta_CO2_grid_initial <-
+  readRDS(file = str_c(working_data_directory,
+                       "delta_CO2_grid_initial.RDS",
+                       sep = "/"))
 
-#----Split_the_grid_into_pieces_to_compute----
-num_groups <- 10
-
-grid_sections <- 
-  delta_CO2_grid %>% 
-  group_by((row_number()-1) %/% (n()/num_groups)) %>%
-  nest %>% pull(data)
-
-#----Set_up_parallel_processsing----
-plan(multisession)
+#----Custom_function_to_calculate_CO2_concentration_across_columns----
+calculate_CO2_p <- function(data, model)  {
+  output_name <- 
+    str_c(model,"_CO2_p_xyzt",sep="")
+  
+  TA_input <- 
+    str_c(model, "_TA_p", sep = "")
+  
+  DIC_input <- 
+    str_c(model, "_DIC_p", sep = "")
+  
+  data %>% 
+    mutate.(!!output_name := carb(flag = 15,
+                                  var1 = !!as.name(TA_input) / 1e6,
+                                  var2 = !!as.name(DIC_input) / 1e6,
+                                  S = S,
+                                  T = T,
+                                  P = 0,
+                                  warn = "n") %>% 
+                        pull(CO2))
+  
+}
 
 #----Calculate_biogeochemical_drawdown----
-i <- 1 #chunk of grid to compute
 
-grid_sections[[i]] <- 
-  grid_sections[[i]] %>%
-  #Run models
-  mutate(galbraith = future_map2(NO3, PO4, galbraith_model),
-         garcia = future_map2(NO3, PO4, garcia_model, metric = "median"),
-         redfield = future_map2(NO3, PO4, redfield_model),
-         atkinson = future_map2(NO3, PO4, atkinson_model, metric = "median")) %>% 
+galbraith_delta_CO2_grid <- 
+  delta_CO2_grid_initial %>% 
+  mutate.(galbraith = map2.(NO3, PO4, galbraith_model)) %>% 
   #Maximum potential biogeochemical change
-  mutate(
-         galbraith_dDIC_max = future_map(galbraith, ~ pluck(.x,1)),
-         galbraith_dTA_max = future_map(galbraith, ~ pluck(.x,2)),
-         garcia_dDIC_max = future_map(garcia, ~ pluck(.x,1)),
-         garcia_dTA_max = future_map(garcia, ~ pluck(.x,2)),
-         redfield_dDIC_max = future_map(redfield, ~ pluck(.x,1)),
-         redfield_dTA_max = future_map(redfield, ~ pluck(.x,2)),
-         atkinson_dDIC_max = future_map(atkinson, ~ pluck(.x,1)),
-         atkinson_dTA_max = future_map(atkinson, ~ pluck(.x,2)),
-         ) %>% 
+  mutate.(galbraith_dDIC_max = map_dbl.(galbraith, ~ pluck(.x,1)),
+          galbraith_dTA_max = map_dbl.(galbraith, ~ pluck(.x,2))) %>% 
   #Add in light limitation
-  mutate(
-         galbraith_dDIC = future_map2(galbraith_dDIC_max, epsilon_micro,  ~ .x * .y),
-         galbraith_dTA = future_map2(galbraith_dTA_max, epsilon_micro, ~ .x * .y),
-         garcia_dDIC = future_map2(garcia_dDIC_max, epsilon_micro,  ~ .x * .y),
-         garcia_dTA = future_map2(garcia_dTA_max, epsilon_micro, ~ .x * .y),
-         redfield_dDIC = future_map2(redfield_dDIC_max, epsilon_micro,  ~ .x * .y),
-         redfield_dTA = future_map2(redfield_dTA_max, epsilon_micro, ~ .x * .y),
-         atkinson_dDIC = future_map2(atkinson_dDIC_max, epsilon_micro,  ~ .x * .y),
-         atkinson_dTA = future_map2(atkinson_dTA_max, epsilon_micro, ~ .x * .y)
-         ) %>% 
+  mutate.(galbraith_dDIC = galbraith_dDIC_max * epsilon_micro,
+          galbraith_dTA = galbraith_dTA_max * epsilon_micro) %>% 
   #Apply changes to DIC and TA and location x,y,z
-  mutate(
-         galbraith_DIC_p = future_map2(galbraith_dDIC, DIC, ~ .x + .y),
-         galbraith_TA_p = future_map2(galbraith_dTA, TA, ~ .x + .y),
-         garcia_DIC_p = future_map2(garcia_dDIC, DIC, ~ .x + .y),
-         garcia_TA_p = future_map2(garcia_dTA, TA, ~ .x + .y),
-         redfield_DIC_p = future_map2(redfield_dDIC, DIC, ~ .x + .y),
-         redfield_TA_p = future_map2(redfield_dTA, TA, ~ .x + .y),
-         atkinson_DIC_p = future_map2(atkinson_dDIC, DIC, ~ .x + .y),
-         atkinson_TA_p = future_map2(atkinson_dTA, TA, ~ .x + .y)
-        ) %>% 
-  #Drop variables to save memory
-  select(-c(galbraith:atkinson_dTA)) %>% 
+  mutate.(galbraith_DIC_p = galbraith_dDIC + DIC,
+          galbraith_TA_p = galbraith_dTA + TA) %>% 
   #Calculate CO2 concentration
-  mutate(galbraith_CO2_p_xyzt = future_pmap(list(galbraith_TA_p, galbraith_DIC_p, S, T),
-                                     function(a,b,c,d) carb(flag = 15,
-                                                            var1 = a / 1e6,
-                                                            var2 = b / 1e6,
-                                                            S = c,
-                                                            T = d,
-                                                            P = 0,
-                                                            warn = "n") %>% 
-                                                        pull(CO2)),
-         garcia_CO2_p_xyzt = future_pmap(list(garcia_TA_p, garcia_DIC_p, S, T),
-                                            function(a,b,c,d) carb(flag = 15,
-                                                                   var1 = a / 1e6,
-                                                                   var2 = b / 1e6,
-                                                                   S = c,
-                                                                   T = d,
-                                                                   P = 0,
-                                                                   warn = "n") %>% 
-                                              pull(CO2)),
-         redfield_CO2_p_xyzt = future_pmap(list(redfield_TA_p, redfield_DIC_p, S, T),
-                                            function(a,b,c,d) carb(flag = 15,
-                                                                   var1 = a / 1e6,
-                                                                   var2 = b / 1e6,
-                                                                   S = c,
-                                                                   T = d,
-                                                                   P = 0,
-                                                                   warn = "n") %>% 
-                                              pull(CO2)),
-         atkinson_CO2_p_xyzt = future_pmap(list(atkinson_TA_p, atkinson_DIC_p, S, T),
-                                            function(a,b,c,d) carb(flag = 15,
-                                                                   var1 = a / 1e6,
-                                                                   var2 = b / 1e6,
-                                                                   S = c,
-                                                                   T = d,
-                                                                   P = 0,
-                                                                   warn = "n") %>% 
-                                              pull(CO2)))
+  calculate_CO2_p(model = "galbraith") %>% 
+  #Calculate CO2 gradient
+  mutate.(galbraith_delta_CO2 = CO2_ML_xyt - galbraith_CO2_p_xyzt)
 
-
-#----Calculate_CO2_gradient----
-grid_sections[[i]] <- 
-  grid_sections[[i]] %>%
-  mutate(galbraith_delta_CO2 = future_map2(CO2_ML_xyt, galbraith_CO2_p_xyzt, ~ .x - .y),
-         garcia_delta_CO2 = future_map2(CO2_ML_xyt, garcia_CO2_p_xyzt, ~.x - .y),
-         redfield_delta_CO2 = future_map2(CO2_ML_xyt, redfield_CO2_p_xyzt, ~.x - .y),
-         atkinson_delta_CO2 = future_map2(CO2_ML_xyt, atkinson_CO2_p_xyzt, ~.x - .y)) %>% 
-  select(c(lon, lat, month, depth_m, contains("delta_CO2")))
-
-#----Save_output----
-saveRDS(grid_sections[[i]],
+saveRDS(galbraith_delta_CO2_grid,
         str_c(working_data_directory,
-              "/delta_CO2_grid_computed_",
-              str_pad(i, 2, pad = "0"),
-              ".RDS",
+              "/galbraith_delta_CO2_grid.RDS",
               sep = ""))
+rm(galbraith_delta_CO2_grid)
+  
+garcia_delta_CO2_grid <- 
+  delta_CO2_grid_initial %>% 
+  mutate.(garcia = map2.(NO3, PO4, garcia_model, metric = "median")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(garcia_dDIC_max = map_dbl.(garcia, ~ pluck(.x,1)),
+          garcia_dTA_max = map_dbl.(garcia, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(garcia_dDIC = garcia_dDIC_max * epsilon_micro,
+          garcia_dTA = garcia_dTA_max * epsilon_micro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(garcia_DIC_p = garcia_dDIC + DIC,
+          garcia_TA_p = garcia_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "garcia") %>% 
+  #Calculate CO2 gradient
+  mutate.(garcia_delta_CO2 = CO2_ML_xyt - garcia_CO2_p_xyzt)
 
-#----Return_to_serial_processing----
-plan(sequential)
+saveRDS(garcia_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/garcia_delta_CO2_grid.RDS",
+              sep = ""))
+rm(garcia_delta_CO2_grid)
+  
+redfield_delta_CO2_grid <- 
+  delta_CO2_grid_initial %>% 
+  mutate.(redfield = map2.(NO3, PO4, redfield_model)) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(redfield_dDIC_max = map_dbl.(redfield, ~ pluck(.x,1)),
+          redfield_dTA_max = map_dbl.(redfield, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(redfield_dDIC = redfield_dDIC_max * epsilon_micro,
+          redfield_dTA = redfield_dTA_max * epsilon_micro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(redfield_DIC_p = redfield_dDIC + DIC,
+          redfield_TA_p = redfield_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "redfield") %>% 
+  #Calculate CO2 gradient
+  mutate.(redfield_delta_CO2 = CO2_ML_xyt - redfield_CO2_p_xyzt)
+
+saveRDS(redfield_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/redfield_delta_CO2_grid.RDS",
+              sep = ""))
+rm(redfield_delta_CO2_grid)
+
+atkinson_delta_CO2_grid <- 
+  delta_CO2_grid_initial %>% 
+  mutate.(atkinson = map2.(NO3, PO4, atkinson_model, metric = "median")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(atkinson_dDIC_max = map_dbl.(atkinson, ~ pluck(.x,1)),
+          atkinson_dTA_max = map_dbl.(atkinson, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(atkinson_dDIC = atkinson_dDIC_max * epsilon_macro,
+          atkinson_dTA = atkinson_dTA_max * epsilon_macro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(atkinson_DIC_p = atkinson_dDIC + DIC,
+          atkinson_TA_p = atkinson_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "atkinson") %>% 
+  #Calculate CO2 gradient
+  mutate.(atkinson_delta_CO2 = CO2_ML_xyt - atkinson_CO2_p_xyzt)
+
+saveRDS(atkinson_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/atkinson_delta_CO2_grid.RDS",
+              sep = ""))
+rm(atkinson_delta_CO2_grid)
