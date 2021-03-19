@@ -18,11 +18,6 @@ source(here::here("scripts",
                   "project_directories.R"))
 
 #----Load_functions_and_data----
-
-#Load custom functions for wrangling data
-source(here::here("scripts",
-                  "custom_functions.R"))
-
 #Load plankton nutrient model
 source(here::here("scripts",
                   "plankton_nutrient_model.R"))
