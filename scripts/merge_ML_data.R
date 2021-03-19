@@ -11,9 +11,9 @@ source(here::here("scripts",
 source(here::here("scripts",
                   "load_MODIS_PAR_data.R"))
 
-#Join data sets (only keep rows for which pCO2 exists)
+#Join data sets
 mixed_layer_data <-
-  left_join(mixed_layer_chemistry_data,
+  inner_join(mixed_layer_chemistry_data,
             MLD_data,
             by = c("lon",
                    "lat",

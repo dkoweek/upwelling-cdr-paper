@@ -1,13 +1,14 @@
+# Calculate annual CDR from the growth model results
+
 # Generate list of model runs
 AU_models <-
   list.files(path = working_data_directory,
              pattern = "_delta_CO2_grid.RDS")
 
 
-
 CDR_all_list <- list()
 CDR_max_list <- list()
-for (i in c(1)) {
+for (i in 1:nrow(AU_models)) {
   
   model_name <- 
     str_extract(string = AU_models[i], 
@@ -21,7 +22,8 @@ for (i in c(1)) {
     model_in %>% 
     select(contains("delta_CO2")) %>% 
     names() 
-
+  
+  #For each model, calculate the annual CDR for each latitude, longitude, depth combination
   CDR_all_list[[i]] <- 
     model_in %>% 
     group_by(lon, lat, depth_m) %>% 
@@ -32,6 +34,7 @@ for (i in c(1)) {
   #Save memory
   rm(model_in)
   
+  #For each model, select the greatest CDR at each longitude/latitude
   CDR_max_list[[i]] <- 
     CDR_all_list[[i]] %>% 
     group_by(lon, lat) %>% 
@@ -40,12 +43,14 @@ for (i in c(1)) {
   
 }
 
-#Combine lists into single data frames
+#Combine the results from each model into a single data frame
+#CDR from all depths
 CDR_all <- 
   plyr::ldply(CDR_all_list,
               data.frame) %>% 
   as_tibble()
 
+#Maximum CDR at a given latitude/longitude
 CDR_max <-
   plyr::ldply(CDR_max_list,
               data.frame) %>% 

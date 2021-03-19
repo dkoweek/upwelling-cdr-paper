@@ -2,7 +2,8 @@
 delta_CO2_grid_initial <-
   readRDS(file = str_c(working_data_directory,
                        "delta_CO2_grid_initial.RDS",
-                       sep = "/"))
+                       sep = "/")) %>% 
+  filter(depth_m > MLD_max) #only calculate from depths deeper than the winter mixed layer
 
 #----Custom_function_to_calculate_CO2_concentration_across_columns----
 calculate_CO2_p <- function(data, model)  {

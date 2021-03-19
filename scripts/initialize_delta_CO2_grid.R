@@ -11,12 +11,13 @@ source(here::here("scripts",
 #----Merge_ML_data_set_with_GLODAP----
 delta_CO2_grid <- 
   inner_join(mixed_layer_data %>% 
-               select(c(lon, lat, month, MLD, MLD_max, CO2, epsilon_micro, epsilon_macro)), 
+               select(c(lon, lat, month, MLD, MLD_max, salinity, temperature, CO2, epsilon_micro, epsilon_macro)), 
              GLODAP_data %>% 
                select(c(lon, lat, depth_m, T, S, NO3, PO4, DIC, TA)), 
              by = c("lon", "lat")) %>% 
-  rename(CO2_ML_xyt = CO2) %>% 
-  filter(depth_m > MLD_max) 
+  rename(CO2_ML_xyt = CO2,
+         S_ML_xyt = salinity,
+         T_ML_xyt = temperature)
 
 #----Save_the_grid----
 saveRDS(delta_CO2_grid,
