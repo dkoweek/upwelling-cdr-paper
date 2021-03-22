@@ -1,7 +1,7 @@
 #----Load_the_initialized_grid----
 mass_flow_grid <-
   readRDS(file = str_c(working_data_directory,
-                       "delta_CO2_grid_initial.RDS",
+                       "upwelling_grid_initial.RDS",
                        sep = "/")) %>% 
   select(c(lon, lat, month, MLD, MLD_max, S_ML_xyt, T_ML_xyt, depth_m, T, S))
 
@@ -32,12 +32,9 @@ sub_ML_rho <- function(data) {
   df <- 
     data[which(depth_m > MLD),]
   
-  df <- 
-    df[which.min(depth_m),]
+  ifelse(nrow(df) < 1, NA, df[which.min(depth_m),rho_xyz])
   
-  return(df[["rho_xyz"]])
-
-
+  
 }
 
 #----Calculate_maximum_flow----
@@ -51,9 +48,11 @@ mass_flow_grid <-
           cell_area = map_dbl.(lat, cell_grid_area),
           V_ML = MLD * cell_area) %>% #m^3
   nest_by.(lon, lat, month) %>% 
-  mutate.(rho_sub_ML_xyt = map_dbl.(data, sub_ML_rho)) %>% 
+  mutate.(rho_sub_ML_xyt = map_dbl.(data, sub_ML_rho)) %>% #density directly below the mixed layer
   unnest.() %>% 
-  mutate.(Q_max_xyzt = V_ML * ((rho_sub_ML_xyt - rho_ML_xyt) / (rho_xyz - rho_sub_ML_xyt))) #m^3/month
+  mutate.(Q_max_xyzt = V_ML * ((rho_sub_ML_xyt - rho_ML_xyt) / (rho_xyz - rho_sub_ML_xyt)), #m^3/month (Fennel 2008)
+          Q_max_xyzt = Q_max_xyzt * rho_sub_ML_xyt / cell_area) #kg/m^2/month (At this max mass flow rate, rho_ML = rho_sub_ML) 
+
 
 #----Save_the_grid----
 saveRDS(mass_flow_grid,

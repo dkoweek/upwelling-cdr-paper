@@ -1,9 +1,8 @@
 #----Load_the_initialized_grid----
-delta_CO2_grid_initial <-
+upwelling_grid_initial <-
   readRDS(file = str_c(working_data_directory,
-                       "delta_CO2_grid_initial.RDS",
-                       sep = "/")) %>% 
-  filter(depth_m > MLD_max) #only calculate from depths deeper than the winter mixed layer
+                       "upwelling_grid_initial.RDS",
+                       sep = "/")) 
 
 #----Custom_function_to_calculate_CO2_concentration_across_columns----
 calculate_CO2_p <- function(data, model)  {
@@ -31,7 +30,7 @@ calculate_CO2_p <- function(data, model)  {
 #----Calculate_biogeochemical_drawdown----
 
 galbraith_delta_CO2_grid <- 
-  delta_CO2_grid_initial %>% 
+  upwelling_grid_initial %>% 
   mutate.(galbraith = map2.(NO3, PO4, galbraith_model)) %>% 
   #Maximum potential biogeochemical change
   mutate.(galbraith_dDIC_max = map_dbl.(galbraith, ~ pluck(.x,1)),
@@ -54,7 +53,7 @@ saveRDS(galbraith_delta_CO2_grid,
 rm(galbraith_delta_CO2_grid)
   
 garcia_delta_CO2_grid <- 
-  delta_CO2_grid_initial %>% 
+  upwelling_grid_initial %>% 
   mutate.(garcia = map2.(NO3, PO4, garcia_model, metric = "median")) %>% 
   #Maximum potential biogeochemical change
   mutate.(garcia_dDIC_max = map_dbl.(garcia, ~ pluck(.x,1)),
@@ -77,7 +76,7 @@ saveRDS(garcia_delta_CO2_grid,
 rm(garcia_delta_CO2_grid)
   
 redfield_delta_CO2_grid <- 
-  delta_CO2_grid_initial %>% 
+  upwelling_grid_initial %>% 
   mutate.(redfield = map2.(NO3, PO4, redfield_model)) %>% 
   #Maximum potential biogeochemical change
   mutate.(redfield_dDIC_max = map_dbl.(redfield, ~ pluck(.x,1)),
@@ -100,7 +99,7 @@ saveRDS(redfield_delta_CO2_grid,
 rm(redfield_delta_CO2_grid)
 
 atkinson_delta_CO2_grid <- 
-  delta_CO2_grid_initial %>% 
+  upwelling_grid_initial %>% 
   mutate.(atkinson = map2.(NO3, PO4, atkinson_model, metric = "median")) %>% 
   #Maximum potential biogeochemical change
   mutate.(atkinson_dDIC_max = map_dbl.(atkinson, ~ pluck(.x,1)),
