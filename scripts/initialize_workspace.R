@@ -11,7 +11,8 @@ pacman::p_load(tidyverse,
                tidync,
                deSolve,
                pangaear,
-               sf)
+               sf,
+               geosphere)
 
 #----Load_project_directories----
 source(here::here("scripts",

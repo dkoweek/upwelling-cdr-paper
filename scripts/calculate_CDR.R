@@ -11,8 +11,13 @@ AU_models <-
   list.files(path = working_data_directory,
              pattern = "_delta_CO2_grid.RDS")
 
+#----Define_constants----
+CO2_MM <- 44 #grams/mol
+g_per_ton <- 1e6 #g per metric ton
+
 #----Calculate_CDR----
 
+CDR_df <- list()
 for (i in 1:length(AU_models)) {
   
   model_name <- 
@@ -36,7 +41,7 @@ for (i in 1:length(AU_models)) {
     intersect(names(mass_flow_grid),
               names(model_in))
   
-  CDR_df <- 
+  CDR_df[[i]] <- 
     #Merge mass flow and delta CO2 data sets
     inner_join.(model_in,
                 mass_flow_grid,
@@ -50,17 +55,24 @@ for (i in 1:length(AU_models)) {
                             .by = c(lon,
                                     lat,
                                     depth_m)) %>% 
-    mutate.(CDR_annual = CDR_annual * (44 / 1e6)) %>%  #metric ton CO2/m^2/year (molar mass = 44 g/mol * kg/1000g * metric ton/ 1000 kg)
+    mutate.(CDR_annual = CDR_annual * (CO2_MM / g_per_ton)) %>%  #metric ton CO2/m^2/year (molar mass = 44 g/mol * kg/1000g * metric ton/ 1000 kg)
     mutate.(model = model_name)
 
   #Save memory
   rm(model_in)
   
-  saveRDS(CDR_df,
-          str_c(working_data_directory,
-                "/CDR_grid_",
-                model_name,
-                ".RDS",
-                sep = ""))
   
 }
+
+#Combine into a single data frame
+CDR_grid <- 
+  plyr::ldply(CDR_df,
+              data.frame) %>% 
+  as_tibble()
+
+
+#----Save_output----
+saveRDS(CDR_grid,
+        str_c(working_data_directory,
+              "CDR_grid.RDS",
+              sep = "/"))
