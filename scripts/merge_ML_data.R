@@ -23,18 +23,7 @@ mixed_layer_data <-
             by = c("lon",
                    "lat",
                    "month"))
-
-#Remove pixels without a full year light cycle (some months are missing)
-mixed_layer_data <- 
-  mixed_layer_data %>% 
-  filter(!is.na(E)) %>% 
-  group_by(lon, lat) %>% 
-  nest() %>% 
-  mutate(n_months = map_dbl(data, nrow)) %>% 
-  filter(n_months == 12) %>% 
-  unnest(cols = data) %>% 
-  ungroup() %>% 
-  select(-n_months)
+  
 
 #----Assign_biogeographic_domain----
 

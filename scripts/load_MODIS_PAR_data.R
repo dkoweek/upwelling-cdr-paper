@@ -37,3 +37,14 @@ PAR_climatology <-
           PAR_climatology_list) %>% 
   as_tibble() %>% 
   rename(E = par)
+
+#----Remove_grid_cells_without_12_months_of_data----
+PAR_climatology <- 
+  PAR_climatology %>% 
+  group_by(lon, lat) %>% 
+  nest() %>% 
+  mutate(n_months = map_dbl(data, nrow)) %>% 
+  filter(n_months == 12) %>% 
+  unnest(cols = data) %>% 
+  ungroup() %>% 
+  select(-n_months)

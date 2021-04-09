@@ -183,6 +183,16 @@ MLD_data <-
               data.frame) %>% 
   as_tibble()
 
+#----Calculate_max_MLD----
+#Useful for merging and filtering
+MLD_data <- 
+  MLD_data %>% 
+  group_by(lon, lat) %>% 
+  nest() %>% 
+  mutate(MLD_max = map_dbl(data, ~max(.x$MLD))) %>% 
+  unnest(cols = data) %>% 
+  ungroup()
+
 #----Adjust_lat_lon----  
 #Reset lat/lon to actual coordinates
 MLD_data <- 
