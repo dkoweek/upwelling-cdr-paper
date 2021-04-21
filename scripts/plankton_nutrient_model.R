@@ -252,3 +252,27 @@ redfield_model <- function(NO3, PO4) {
   
   
 }
+
+
+#Model for P-limitation (simulates N-fixation)
+redfield_P_limited_model <- function(NO3, PO4) {
+  
+  redfield_C_N <- 106 / 16
+  
+  redfield_N_P <- 16
+  
+  #Assume P-limitation for purposes of DIC production (N needs met through N fixation)
+  delta_DIC_bio_P_limited <- 
+    redfield_C_N * redfield_N_P * PO4
+  
+  #For TA production from nitrate uptake, minimum of NO3 or redfield N:P * PO4
+  delta_N_bio_P_limited <- 
+    min(redfield_N_P * PO4,
+        NO3)
+  
+  return(list(delta_DIC_bio = delta_DIC_bio_P_limited,
+              delta_TA_bio = delta_N_bio_P_limited))
+  
+  
+}
+

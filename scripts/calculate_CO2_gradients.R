@@ -29,6 +29,7 @@ calculate_CO2_p <- function(data, model)  {
 
 #----Calculate_biogeochemical_drawdown----
 
+#----Galbraith_and_Martiny_2015----
 galbraith_delta_CO2_grid <- 
   upwelling_grid_initial %>% 
   mutate.(galbraith = map2.(NO3, PO4, galbraith_model)) %>% 
@@ -51,7 +52,8 @@ saveRDS(galbraith_delta_CO2_grid,
               "/galbraith_delta_CO2_grid.RDS",
               sep = ""))
 rm(galbraith_delta_CO2_grid)
-  
+
+#----Garcia_et_al_2018----  
 garcia_delta_CO2_grid <- 
   upwelling_grid_initial %>% 
   mutate.(garcia = map2.(NO3, PO4, garcia_model, metric = "median")) %>% 
@@ -74,7 +76,8 @@ saveRDS(garcia_delta_CO2_grid,
               "/garcia_delta_CO2_grid.RDS",
               sep = ""))
 rm(garcia_delta_CO2_grid)
-  
+
+#----Redfield_et_al_1934----  
 redfield_delta_CO2_grid <- 
   upwelling_grid_initial %>% 
   mutate.(redfield = map2.(NO3, PO4, redfield_model)) %>% 
@@ -98,25 +101,100 @@ saveRDS(redfield_delta_CO2_grid,
               sep = ""))
 rm(redfield_delta_CO2_grid)
 
-atkinson_delta_CO2_grid <- 
+#----Redfield_P_limitation----
+redfield_P_limited_delta_CO2_grid <- 
   upwelling_grid_initial %>% 
-  mutate.(atkinson = map2.(NO3, PO4, atkinson_model, metric = "median")) %>% 
+  mutate.(redfield_P_limited = map2.(NO3, PO4, redfield_P_limited_model)) %>% 
   #Maximum potential biogeochemical change
-  mutate.(atkinson_dDIC_max = map_dbl.(atkinson, ~ pluck(.x,1)),
-          atkinson_dTA_max = map_dbl.(atkinson, ~ pluck(.x,2))) %>% 
+  mutate.(redfield_P_limited_dDIC_max = map_dbl.(redfield_P_limited, ~ pluck(.x,1)),
+          redfield_P_limited_dTA_max = map_dbl.(redfield_P_limited, ~ pluck(.x,2))) %>% 
   #Add in light limitation
-  mutate.(atkinson_dDIC = atkinson_dDIC_max * epsilon_macro,
-          atkinson_dTA = atkinson_dTA_max * epsilon_macro) %>% 
+  mutate.(redfield_P_limited_dDIC = redfield_P_limited_dDIC_max * epsilon_micro,
+          redfield_P_limited_dTA = redfield_P_limited_dTA_max * epsilon_micro) %>% 
   #Apply changes to DIC and TA and location x,y,z
-  mutate.(atkinson_DIC_p = atkinson_dDIC + DIC,
-          atkinson_TA_p = atkinson_dTA + TA) %>% 
+  mutate.(redfield_P_limited_DIC_p = redfield_P_limited_dDIC + DIC,
+          redfield_P_limited_TA_p = redfield_P_limited_dTA + TA) %>% 
   #Calculate CO2 concentration
-  calculate_CO2_p(model = "atkinson") %>% 
+  calculate_CO2_p(model = "redfield_P_limited") %>% 
   #Calculate CO2 gradient
-  mutate.(atkinson_delta_CO2 = CO2_ML_xyt - atkinson_CO2_p_xyzt)
+  mutate.(redfield_P_limited_delta_CO2 = CO2_ML_xyt - redfield_P_limited_CO2_p_xyzt)
 
-saveRDS(atkinson_delta_CO2_grid,
+saveRDS(redfield_P_limited_delta_CO2_grid,
         str_c(working_data_directory,
-              "/atkinson_delta_CO2_grid.RDS",
+              "/redfield_P_limited_delta_CO2_grid.RDS",
               sep = ""))
-rm(atkinson_delta_CO2_grid)
+rm(redfield_P_limited_delta_CO2_grid)
+
+#----Atkinson_and_Smith_1983----
+
+#Median N:P
+atkinson_med_delta_CO2_grid <- 
+  upwelling_grid_initial %>% 
+  mutate.(atkinson_med = map2.(NO3, PO4, atkinson_model, metric = "median")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(atkinson_med_dDIC_max = map_dbl.(atkinson_med, ~ pluck(.x,1)),
+          atkinson_med_dTA_max = map_dbl.(atkinson_med, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(atkinson_med_dDIC = atkinson_med_dDIC_max * epsilon_macro,
+          atkinson_med_dTA = atkinson_med_dTA_max * epsilon_macro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(atkinson_med_DIC_p = atkinson_med_dDIC + DIC,
+          atkinson_med_TA_p = atkinson_med_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "atkinson_med") %>% 
+  #Calculate CO2 gradient
+  mutate.(atkinson_med_delta_CO2 = CO2_ML_xyt - atkinson_med_CO2_p_xyzt)
+
+saveRDS(atkinson_med_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/atkinson_med_delta_CO2_grid.RDS",
+              sep = ""))
+rm(atkinson_med_delta_CO2_grid)
+
+#1st quartile N:P
+atkinson_q1_delta_CO2_grid <- 
+  upwelling_grid_initial %>% 
+  mutate.(atkinson_q1 = map2.(NO3, PO4, atkinson_model, metric = "q1")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(atkinson_q1_dDIC_max = map_dbl.(atkinson_q1, ~ pluck(.x,1)),
+          atkinson_q1_dTA_max = map_dbl.(atkinson_q1, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(atkinson_q1_dDIC = atkinson_q1_dDIC_max * epsilon_macro,
+          atkinson_q1_dTA = atkinson_q1_dTA_max * epsilon_macro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(atkinson_q1_DIC_p = atkinson_q1_dDIC + DIC,
+          atkinson_q1_TA_p = atkinson_q1_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "atkinson_q1") %>% 
+  #Calculate CO2 gradient
+  mutate.(atkinson_q1_delta_CO2 = CO2_ML_xyt - atkinson_q1_CO2_p_xyzt)
+
+saveRDS(atkinson_q1_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/atkinson_q1_delta_CO2_grid.RDS",
+              sep = ""))
+rm(atkinson_q1_delta_CO2_grid)
+
+#3rd quartile N:P
+atkinson_q3_delta_CO2_grid <- 
+  upwelling_grid_initial %>% 
+  mutate.(atkinson_q3 = map2.(NO3, PO4, atkinson_model, metric = "q3")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(atkinson_q3_dDIC_max = map_dbl.(atkinson_q3, ~ pluck(.x,1)),
+          atkinson_q3_dTA_max = map_dbl.(atkinson_q3, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(atkinson_q3_dDIC = atkinson_q3_dDIC_max * epsilon_macro,
+          atkinson_q3_dTA = atkinson_q3_dTA_max * epsilon_macro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(atkinson_q3_DIC_p = atkinson_q3_dDIC + DIC,
+          atkinson_q3_TA_p = atkinson_q3_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "atkinson_q3") %>% 
+  #Calculate CO2 gradient
+  mutate.(atkinson_q3_delta_CO2 = CO2_ML_xyt - atkinson_q3_CO2_p_xyzt)
+
+saveRDS(atkinson_q3_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/atkinson_q3_delta_CO2_grid.RDS",
+              sep = ""))
+rm(atkinson_q3_delta_CO2_grid)
