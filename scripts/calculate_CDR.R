@@ -15,14 +15,16 @@ AU_models <-
 CO2_MM <- 44 #grams/mol
 g_per_ton <- 1e6 #g per metric ton
 
+
 #----Calculate_CDR----
 
 CDR_df <- list()
 for (i in 1:length(AU_models)) {
   
   model_name <- 
-    str_extract(string = AU_models[i], 
-                pattern = "^[a-z]+")
+    str_split(string = AU_models[i], 
+              pattern = "_delta_")[[1]][1] 
+    
   
   model_in <- 
     readRDS(file = str_c(working_data_directory,
@@ -47,15 +49,17 @@ for (i in 1:length(AU_models)) {
                 mass_flow_grid,
                 by = grouping_variables) %>% 
     #Calculate CDR at every xyzt combination (lon, lat, depth, month)
-    mutate.(CDR_per_area = Q_max_xyzt * !!as.name(delta_CO2_name)) %>% #kg/m^2/month * mol/kg -> mol/m^2/month
+    mutate.(CDR_per_area_lb = Q_xyz_lb * !!as.name(delta_CO2_name),
+            CDR_per_area_ub = Q_xyz_ub * !!as.name(delta_CO2_name)) %>% #kg/m^2/month * mol/kg -> mol/m^2/month
     #Calculate annual by adding up the monthly CDR
-    summarize.(CDR_annual = sum(CDR_per_area), #mol/m^2/year
-               MLD_max = mean(MLD_max), #hack to carry 'MLD_max' and 'cell_area' into summarized data frame
-               cell_area = mean(cell_area),
+    summarize.(CDR_annual_lb = sum(CDR_per_area_lb), #mol/m^2/year
+               CDR_annual_ub = sum(CDR_per_area_ub),
+               MLD_max = mean(MLD_max), #hack to carry 'MLD_max' and 'pipe_depth' into summarized data frame
+               pipe_depth = mean(pipe_depth),
                             .by = c(lon,
                                     lat,
                                     depth_m)) %>% 
-    mutate.(CDR_annual = CDR_annual * (CO2_MM / g_per_ton)) %>%  #metric ton CO2/m^2/year (molar mass = 44 g/mol * kg/1000g * metric ton/ 1000 kg)
+    mutate_across.(contains("CDR_annual"), ~ .x * (CO2_MM / g_per_ton)) %>% #metric ton CO2/m^2/year (molar mass = 44 g/mol * kg/1000g * metric ton/ 1000 kg)
     mutate.(model = model_name)
 
   #Save memory
