@@ -270,7 +270,7 @@ redfield_P_limited_model <- function(NO3, PO4) {
     min(redfield_N_P * PO4,
         NO3)
   
-  return(list(delta_DIC_bio = delta_DIC_bio_P_limited,
+  return(list(delta_DIC_bio = -1 * delta_DIC_bio_P_limited,
               delta_TA_bio = delta_N_bio_P_limited))
   
   
