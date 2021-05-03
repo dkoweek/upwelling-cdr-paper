@@ -31,3 +31,8 @@ BG_directory <-
              "input_data",
              "BG_provinces",
              "longhurst_v4_2010")
+
+upwelling_directory <- 
+  here::here("data",
+             "input_data",
+             "upwelling_pipes")

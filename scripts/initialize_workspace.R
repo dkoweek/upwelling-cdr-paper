@@ -12,7 +12,10 @@ pacman::p_load(tidyverse,
                deSolve,
                pangaear,
                sf,
-               geosphere)
+               geosphere,
+               readxl,
+               cowplot,
+               ggpubr)
 
 #----Load_project_directories----
 source(here::here("scripts",
