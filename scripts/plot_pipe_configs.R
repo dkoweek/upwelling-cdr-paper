@@ -12,10 +12,12 @@ pipe_configs_plot <-
   mutate(Maximum_Pipe_Length_m = as.numeric(Maximum_Pipe_Length_m),
          Volumetric_Flow_m3_s = as.numeric(Volumetric_Flow_m3_s)) %>% 
   ggplot(aes(x = Maximum_Pipe_Length_m,
-             y = Volumetric_Flow_m3_s)) + 
+             y = Volumetric_Flow_m3_s,
+             label = Source)) + 
   geom_point(aes(shape = Field_Model,
                  colour = Field_Model),
              size = 6) +
+  geom_text_repel(box.padding = 0.65) +
   scale_colour_viridis(discrete = TRUE,
                        option = "B",
                        begin = 0.15,
@@ -33,7 +35,7 @@ pipe_configs_plot <-
         axis.text = element_text(size = 12))
 
 #Add in test cases in this study
-pipe_configs_plot <- 
+pipe_configs_plot <-
   pipe_configs_plot +
   geom_point(aes(x = 500,
                  y = 0.05),

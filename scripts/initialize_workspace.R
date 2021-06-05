@@ -15,7 +15,8 @@ pacman::p_load(tidyverse,
                geosphere,
                readxl,
                cowplot,
-               ggpubr)
+               ggpubr,
+               ggrepel)
 
 #----Load_project_directories----
 source(here::here("scripts",
