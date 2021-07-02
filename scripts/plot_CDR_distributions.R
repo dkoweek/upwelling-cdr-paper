@@ -1,0 +1,120 @@
+#Need to acquire global grids
+
+#----Re-run_results_as_needed----
+# source(here::here("scripts",
+#                   "analyze_CDR.R"))
+
+
+#----Join_technical_potential_and_geophysical_potential----
+CDR_grids_combined <- 
+  CDR_tech_potential_grid %>% 
+  ungroup() %>% 
+  mutate(potential = "tech") %>% 
+  bind_rows(CDR_geophysical_potential_grid %>% 
+              ungroup() %>% 
+              mutate(potential = "geophysical")) %>% 
+  select(c(CDR_annual_ub, model, potential)) %>% 
+  mutate(algae = case_when(str_detect(string = model, pattern = "atkinson") == TRUE ~ "macroalgae",
+                           TRUE ~ "microalgae"))
+
+
+#----Set_common_plot_parameters----
+CDR_limits <- c(-1.1,1.6)
+CDR_breaks <- seq(-1,1.5, by = 0.5)
+
+#----Plot_distributions----
+CDR_cdf_plots <- list()
+CDR_pdf_plots <- list()
+
+for (i in 1:length(models)) {
+  
+  CDR_cdf_plots[[i]] <- 
+    CDR_grids_combined %>% 
+    filter(model == models[i]) %>% 
+    mutate(CDR = CDR_annual_ub * m2_to_km2) %>% #ton CO2/m^2/yr -> ton CO2/km^2/yr
+    ggplot(aes(x = CDR,
+               colour = potential)) +
+    stat_ecdf(pad = FALSE) +
+    scale_x_continuous(name = expression(Potential~CDR~(tons~CO[2]~km^{-2}~yr^{-1})),
+                       limits = CDR_limits,
+                       breaks = CDR_breaks) +
+    scale_y_continuous(name = "Cumulative Frequency") +
+    scale_colour_viridis(discrete = TRUE,
+                         name = "Pipe Depths Considered",
+                         labels = depth_category_labels) +
+    ggtitle(model_titles[i]) +
+    theme_bw()
+  
+  CDR_pdf_plots[[i]] <- 
+    CDR_grids_combined %>% 
+    filter(model == models[i]) %>% 
+    mutate(CDR = CDR_annual_ub * m2_to_km2) %>% #ton CO2/m^2/yr -> ton CO2/km^2/yr
+    ggplot(aes(x = CDR,
+               colour = potential)) +
+    geom_density() +
+    scale_x_continuous(name = expression(Potential~CDR~(tons~CO[2]~km^{-2}~yr^{-1})),
+                       limits = CDR_limits,
+                       breaks = CDR_breaks) +
+    scale_y_continuous(name = "Density") +
+    scale_colour_viridis(discrete = TRUE,
+                         name = "Pipe Depths Considered",
+                         labels = depth_category_labels) +
+    ggtitle(model_titles[i]) +
+    theme_bw()
+  
+  
+}
+
+
+#----Arrange_into_panel----
+distributions_legend <- 
+  get_legend(
+    CDR_cdf_plots[[1]] +
+      theme(
+        legend.title.align = 0.5,
+        legend.direction = "vertical",
+        legend.justification = "center"
+      )) %>% as_ggplot()
+
+
+CDR_cdf_panel_plot <-
+  plot_grid(CDR_cdf_plots[[1]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[2]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[3]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[7]] + theme(legend.position = "none"),
+            CDR_cdf_plots[[4]] + theme(legend.position = "none"),
+            distributions_legend,
+            ncol = 2,
+            align = "hv")
+
+CDR_pdf_panel_plot <-
+  plot_grid(CDR_pdf_plots[[1]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[2]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[3]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[7]] + theme(legend.position = "none"),
+            CDR_pdf_plots[[4]] + theme(legend.position = "none"),
+            distributions_legend,
+            ncol = 2,
+            align = "hv")
+
+
+#----Export_plots----
+cowplot::ggsave2(filename = str_c(working_data_directory,
+                                  "CDR_cdf_panel.png",
+                                  sep = "/"),
+                 plot = CDR_cdf_panel_plot,
+                 height = 11,
+                 width = 8,
+                 units = "in")
+
+cowplot::ggsave2(filename = str_c(working_data_directory,
+                                  "CDR_pdf_panel.png",
+                                  sep = "/"),
+                 plot = CDR_pdf_panel_plot,
+                 height = 11,
+                 width = 8,
+                 units = "in")

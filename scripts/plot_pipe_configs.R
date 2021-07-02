@@ -35,12 +35,27 @@ pipe_configs_plot <-
         axis.text = element_text(size = 12))
 
 #Add in test cases in this study
+study_config_df <- data.frame(Maximum_Pipe_Length_m = 500,
+                              Volumetric_Flow_m3_s = 0.05,
+                              Source = "This Study")
+
 pipe_configs_plot <-
   pipe_configs_plot +
-  geom_point(aes(x = 500,
-                 y = 0.05),
-             alpha = 0.05,
+  geom_point(data = study_config_df,
+             alpha = 0.5,
              colour = "red",
              shape = "square",
              size = 6,
-             show.legend = FALSE)
+             show.legend = FALSE) +
+  geom_text_repel(data = study_config_df,
+                  box.padding = 0.65)
+  
+
+#----Export_plot----
+ggsave(filename = str_c(working_data_directory,
+                        "pipe_configurations.png",
+                        sep = "/"),
+       plot = pipe_configs_plot,
+       height = 6.5,
+       width = 7,
+       units = "in")

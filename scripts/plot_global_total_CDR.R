@@ -32,8 +32,7 @@ microalgae_CDR_sums_plots <-
            position = position_dodge2()) +
   scale_fill_viridis(discrete = TRUE,
                      name = "Pumping Depth",
-                     labels = c("<500 (m)",
-                                "All Depths")) +
+                     labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
                    labels = c("Galbraith and Martiny (2015)",
                               "Garcia et al. (2018)",
@@ -113,5 +112,14 @@ CDR_total_bar_plots <-
     align = "hv",
     rel_heights = c(6,1)
   )
-  
+
+#----Export_plot----
+
+cowplot::ggsave2(filename = str_c(working_data_directory,
+                                  "global_total_CDR.png",
+                                  sep = "/"),
+                 plot = CDR_total_bar_plots,
+                 height = 8,
+                 width = 8,
+                 units = "in")
   

@@ -6,16 +6,6 @@
 
 
 #----Set_parameters_for_plots----
-models <- c("galbraith", "garcia", "redfield", "redfield_P_limited", "atkinson_q1", "atkinson_med", "atkinson_q3")
-model_titles <- c("Galbraith et al. (2015)",
-                  "Garcia et al. (2018)",
-                  "Redfield et al. (1934)",
-                  "Redfield et al. (1934): P-limited",
-                   "Atkinson & Smith (1983): Q1 N:P",
-                   "Atkinson & Smith (1983): Median N:P",
-                   "Atkinson & Smith (1983): Q3 N:P")
-
-m2_to_km2 <- 1e6 #m^2 per km^2
 
 CDR_color_limits <- c(-1.1,1.6)
 CDR_color_breaks <- seq(-1,1.5, by = 0.5)

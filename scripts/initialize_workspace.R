@@ -35,6 +35,9 @@ source(here::here("scripts",
 source(here::here("scripts",
                   "load_depth_surface_matchup_table.R"))
 
+source(here::here("scripts",
+                  "plot_common_parameters.R"))
+
 #----Print_session_info----
 # Print session info
 writeLines(capture.output(sessionInfo()),
