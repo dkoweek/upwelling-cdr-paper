@@ -36,7 +36,7 @@ PAR_climatology <-
   do.call(rbind.data.frame,
           PAR_climatology_list) %>% 
   as_tibble() %>% 
-  rename(E = par)
+  rename(E_bar_diel_cycle = par)
 
 #----Remove_grid_cells_without_12_months_of_data----
 PAR_climatology <- 
@@ -48,3 +48,16 @@ PAR_climatology <-
   unnest(cols = data) %>% 
   ungroup() %>% 
   select(-n_months)
+
+#----Calculate_photoperiod_and_average_light_during_photoperiod_by_lat_and_date----
+PAR_climatology <- 
+  PAR_climatology %>% 
+  mutate(days_month = map(month, ~ seq(1, days_in_month(.x)))) %>% 
+  mutate(datestring = map2(month, days_month, ~ date(str_c("2021-",.x,"-",.y) ))) %>% 
+  mutate(photoperiod = map2(lat, datestring, ~ daylength(.x, .y))) %>% 
+  mutate(mean_photoperiod = map_dbl(photoperiod, mean)) %>% 
+  mutate(f_light = mean_photoperiod / 24) %>% #Fraction of each day in the photoperiod
+  mutate(E = E_bar_diel_cycle / f_light) %>%  #Average PAR during the photoperiod
+  select(-c(days_month, photoperiod, datestring))
+  
+  
