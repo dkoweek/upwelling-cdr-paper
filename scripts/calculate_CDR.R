@@ -48,9 +48,9 @@ for (i in 1:length(AU_models)) {
     inner_join.(model_in,
                 mass_flow_grid,
                 by = grouping_variables) %>% 
-    #Calculate CDR at every xyzt combination (lon, lat, depth, month)
-    mutate.(CDR_per_area_lb = Q_xyz_lb * !!as.name(delta_CO2_name),
-            CDR_per_area_ub = Q_xyz_ub * !!as.name(delta_CO2_name)) %>% #kg/m^2/month * mol/kg -> mol/m^2/month
+    #Calculate CDR at every xyzt combination (lon, lat, depth, month): fractional day in the photoperiod * kg/m^2/month * mol/kg -> mol/m^2/month 
+    mutate.(CDR_per_area_lb = f_light * Q_xyz_lb * !!as.name(delta_CO2_name),
+            CDR_per_area_ub = f_light * Q_xyz_ub * !!as.name(delta_CO2_name)) %>% 
     #Calculate annual by adding up the monthly CDR
     summarize.(CDR_annual_lb = sum(CDR_per_area_lb), #mol/m^2/year
                CDR_annual_ub = sum(CDR_per_area_ub),

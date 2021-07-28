@@ -26,7 +26,7 @@ mass_flow_grid <-
   mutate.(Q_xyz_lb = Q_pipe_xyz * pipe_density[1],
           Q_xyz_ub = Q_pipe_xyz * pipe_density[2]) %>% #kg/month/pipe * pipe/m^2 = kg/m^2/month
   mutate.(pipe_depth = pipe_depth) #Save for later use
-  
+
 #----Save_the_grid----
 saveRDS(mass_flow_grid,
         str_c(working_data_directory,

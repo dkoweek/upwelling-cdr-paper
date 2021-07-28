@@ -53,29 +53,55 @@ saveRDS(galbraith_delta_CO2_grid,
               sep = ""))
 rm(galbraith_delta_CO2_grid)
 
-#----Garcia_et_al_2018----  
-garcia_delta_CO2_grid <- 
-  upwelling_grid_initial %>% 
-  mutate.(garcia = map2.(NO3, PO4, garcia_model, metric = "median")) %>% 
-  #Maximum potential biogeochemical change
-  mutate.(garcia_dDIC_max = map_dbl.(garcia, ~ pluck(.x,1)),
-          garcia_dTA_max = map_dbl.(garcia, ~ pluck(.x,2))) %>% 
-  #Add in light limitation
-  mutate.(garcia_dDIC = garcia_dDIC_max * epsilon_micro,
-          garcia_dTA = garcia_dTA_max * epsilon_micro) %>% 
-  #Apply changes to DIC and TA and location x,y,z
-  mutate.(garcia_DIC_p = garcia_dDIC + DIC,
-          garcia_TA_p = garcia_dTA + TA) %>% 
-  #Calculate CO2 concentration
-  calculate_CO2_p(model = "garcia") %>% 
-  #Calculate CO2 gradient
-  mutate.(garcia_delta_CO2 = CO2_ML_xyt - garcia_CO2_p_xyzt)
+#----Garcia_et_al_2018----
 
-saveRDS(garcia_delta_CO2_grid,
+#1st quartile N:P
+garcia_q1_delta_CO2_grid <- 
+  upwelling_grid_initial %>% 
+  mutate.(garcia_q1 = map2.(NO3, PO4, garcia_model, metric = "q1")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(garcia_q1_dDIC_max = map_dbl.(garcia_q1, ~ pluck(.x,1)),
+          garcia_q1_dTA_max = map_dbl.(garcia_q1, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(garcia_q1_dDIC = garcia_q1_dDIC_max * epsilon_micro,
+          garcia_q1_dTA = garcia_q1_dTA_max * epsilon_micro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(garcia_q1_DIC_p = garcia_q1_dDIC + DIC,
+          garcia_q1_TA_p = garcia_q1_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "garcia_q1") %>% 
+  #Calculate CO2 gradient
+  mutate.(garcia_q1_delta_CO2 = CO2_ML_xyt - garcia_q1_CO2_p_xyzt)
+
+saveRDS(garcia_q1_delta_CO2_grid,
         str_c(working_data_directory,
-              "/garcia_delta_CO2_grid.RDS",
+              "/garcia_q1_delta_CO2_grid.RDS",
               sep = ""))
-rm(garcia_delta_CO2_grid)
+rm(garcia_q1_delta_CO2_grid)
+
+#3rd quartile N:P
+garcia_q3_delta_CO2_grid <- 
+  upwelling_grid_initial %>% 
+  mutate.(garcia_q3 = map2.(NO3, PO4, garcia_model, metric = "q3")) %>% 
+  #Maximum potential biogeochemical change
+  mutate.(garcia_q3_dDIC_max = map_dbl.(garcia_q3, ~ pluck(.x,1)),
+          garcia_q3_dTA_max = map_dbl.(garcia_q3, ~ pluck(.x,2))) %>% 
+  #Add in light limitation
+  mutate.(garcia_q3_dDIC = garcia_q3_dDIC_max * epsilon_micro,
+          garcia_q3_dTA = garcia_q3_dTA_max * epsilon_micro) %>% 
+  #Apply changes to DIC and TA and location x,y,z
+  mutate.(garcia_q3_DIC_p = garcia_q3_dDIC + DIC,
+          garcia_q3_TA_p = garcia_q3_dTA + TA) %>% 
+  #Calculate CO2 concentration
+  calculate_CO2_p(model = "garcia_q3") %>% 
+  #Calculate CO2 gradient
+  mutate.(garcia_q3_delta_CO2 = CO2_ML_xyt - garcia_q3_CO2_p_xyzt)
+
+saveRDS(garcia_q3_delta_CO2_grid,
+        str_c(working_data_directory,
+              "/garcia_q3_delta_CO2_grid.RDS",
+              sep = ""))
+rm(garcia_q3_delta_CO2_grid)
 
 #----Redfield_et_al_1934----  
 redfield_delta_CO2_grid <- 
