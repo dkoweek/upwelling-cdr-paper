@@ -26,6 +26,11 @@ y_breaks <-seq(0,0.25, by = 0.05)
 microalgae_CDR_sums_plots <-
   CDR_total_df %>% 
   filter(algae == "microalgae") %>% 
+  mutate(model = factor(model, levels = c("galbraith", 
+                                          "garcia_q1", 
+                                          "garcia_q3", 
+                                          "redfield", 
+                                          "redfield_P_limited"))) %>% 
   ggplot(aes(x = model)) +
   geom_col(aes(y = CDR, 
                fill = method),
@@ -34,10 +39,7 @@ microalgae_CDR_sums_plots <-
                      name = "Pumping Depth",
                      labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
-                   labels = c("Galbraith and Martiny (2015)",
-                              "Garcia et al. (2018)",
-                              "Redfield et al. (X)",
-                              "Redfield P-limited")) +
+                   labels = model_titles[1:5]) +
   scale_y_continuous(name = expression(Carbon~Dioxide~Removal~(Gt~CO[2]~yr^{-1})),
                      limits = y_lims,
                      breaks = y_breaks) +
@@ -65,9 +67,7 @@ macroalgae_CDR_sums_plots <-
                      labels = c("<500 (m)",
                                 "All Depths")) +
   scale_x_discrete(name = element_blank(),
-                   labels = c("Q1 N:P",
-                              "Median N:P",
-                              "Q3 N:P")) +
+                   labels = model_titles[6:8]) +
   scale_y_continuous(name = expression(Carbon~Dioxide~Removal~(Gt~CO[2]~yr^{-1})),
                      limits = y_lims,
                      breaks = y_breaks) +
@@ -85,7 +85,7 @@ depth_legend <-
   get_legend(
     microalgae_CDR_sums_plots + theme(
       legend.title.align = 0.5,
-      legend.direction = "horizontal",
+      legend.direction = "vertical",
       legend.title = element_text(size = 14),
       legend.text = element_text(size = 12),
       # legend.key.width = unit(0.75, "in"),
@@ -94,24 +94,25 @@ depth_legend <-
   ) %>% as_ggplot()
 
 
-#Combine the plots only (no legend)
-CDR_total_bar_plots_only <- 
-    plot_grid(
-      microalgae_CDR_sums_plots + theme(legend.position = "none"),
-      macroalgae_CDR_sums_plots + theme(legend.position = "none"),
-      ncol = 2,
-      align = "hv"
-    )
+#Bottom panel - macroalgae + legend
+bottom_panel <- 
+  plot_grid(
+    macroalgae_CDR_sums_plots + theme(legend.position = "none"),
+    depth_legend,
+    ncol = 2,
+    align = "hv",
+    rel_widths = c(4,1)
+  )
 
-#Add in the legend
 CDR_total_bar_plots <- 
   plot_grid(
-    CDR_total_bar_plots_only,
-    depth_legend,
-    nrow = 2,
-    align = "hv",
-    rel_heights = c(6,1)
+    microalgae_CDR_sums_plots + theme(legend.position = "none"),
+    bottom_panel,
+    axis = "l",
+    nrow = 2
   )
+
+
 
 #----Export_plot----
 
@@ -120,6 +121,6 @@ cowplot::ggsave2(filename = str_c(working_data_directory,
                                   sep = "/"),
                  plot = CDR_total_bar_plots,
                  height = 8,
-                 width = 8,
+                 width = 10,
                  units = "in")
   

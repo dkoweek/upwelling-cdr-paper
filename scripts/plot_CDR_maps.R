@@ -96,22 +96,40 @@ CDR_legend <-
         )) %>% as_ggplot()
 
 
+CDR_microalgae_subpanel_plots <- list()
+CDR_macroalgae_subpanel_plots <- list()
 CDR_panel_plots <- list()
 
 for (n in 1:2) {
-  CDR_panel_plots[[n]] <- 
+  CDR_microalgae_subpanel_plots[[n]] <- 
     plot_grid(
       CDR_heat_maps[[1 + (length(models)*(n-1))]] + theme(legend.position = "none"),
-      CDR_heat_maps[[5 + (length(models)*(n-1))]] + theme(legend.position = "none"),
       CDR_heat_maps[[2 + (length(models)*(n-1))]] + theme(legend.position = "none"),
-      CDR_heat_maps[[6 + (length(models)*(n-1))]] + theme(legend.position = "none"),
       CDR_heat_maps[[3 + (length(models)*(n-1))]] + theme(legend.position = "none"),
-      CDR_heat_maps[[7 + (length(models)*(n-1))]] + theme(legend.position = "none"),
       CDR_heat_maps[[4 + (length(models)*(n-1))]] + theme(legend.position = "none"),
+      CDR_heat_maps[[5 + (length(models)*(n-1))]] + theme(legend.position = "none"),
+      nrow = 5,
+      align = "hv")
+  
+  CDR_macroalgae_subpanel_plots[[n]] <- 
+    plot_grid(
+      CDR_heat_maps[[6 + (length(models)*(n-1))]] + theme(legend.position = "none"),
+      CDR_heat_maps[[7 + (length(models)*(n-1))]] + theme(legend.position = "none"),
+      CDR_heat_maps[[8 + (length(models)*(n-1))]] + theme(legend.position = "none"),
       CDR_legend,
-      ncol = 2,
-      align = "hv"
+      nrow = 4,
+      rel_heights = c(1,1,1,2),
+      align = "h"
     )
+  
+  CDR_panel_plots[[n]] <- 
+    plot_grid(
+      CDR_microalgae_subpanel_plots[[n]],
+      CDR_macroalgae_subpanel_plots[[n]],
+      ncol = 2,
+      axis = "v"
+    )
+      
   
 }
 
@@ -128,7 +146,7 @@ depth_legend_tech_potential <-
 
 depth_legend_geophysical_potential <- 
   get_legend(
-    depth_heat_maps[[8]] +
+    depth_heat_maps[[1 + length(models)]] +
       theme(
         legend.title.align = 0.5,
         legend.direction = "vertical",
@@ -136,32 +154,65 @@ depth_legend_geophysical_potential <-
       )) %>% as_ggplot()
 
 
-depth_tech_potential_panel_plot <- 
+depth_tech_potential_microalgae_subpanel <- 
   plot_grid(
     depth_heat_maps[[1]] + theme(legend.position = "none"),
-    depth_heat_maps[[5]] + theme(legend.position = "none"),
     depth_heat_maps[[2]] + theme(legend.position = "none"),
-    depth_heat_maps[[6]] + theme(legend.position = "none"),
     depth_heat_maps[[3]] + theme(legend.position = "none"),
-    depth_heat_maps[[7]] + theme(legend.position = "none"),
     depth_heat_maps[[4]] + theme(legend.position = "none"),
+    depth_heat_maps[[5]] + theme(legend.position = "none"),
+    nrow = 5,
+    align = "hv"
+  )
+
+depth_tech_potential_macroalgae_subpanel <- 
+  plot_grid(
+    depth_heat_maps[[6]] + theme(legend.position = "none"),
+    depth_heat_maps[[7]] + theme(legend.position = "none"),
+    depth_heat_maps[[8]] + theme(legend.position = "none"),
     depth_legend_tech_potential,
+    nrow = 4,
+    rel_heights = c(1,1,1,2),
+    align = "hv"
+  )
+
+depth_tech_potential_panel_plot <- 
+  plot_grid(
+    depth_tech_potential_microalgae_subpanel,
+    depth_tech_potential_macroalgae_subpanel,
     ncol = 2,
+    axis = "v"
+  )
+
+
+depth_geophysical_potential_microalgae_subpanel <- 
+  plot_grid(
+    depth_heat_maps[[1 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[2 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[3 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[4 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[5 + length(models)]] + theme(legend.position = "none"),
+    nrow = 5,
+    align = "hv"
+  )
+
+depth_geophysical_potential_macroalgae_subpanel <- 
+  plot_grid(
+    depth_heat_maps[[6 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[7 + length(models)]] + theme(legend.position = "none"),
+    depth_heat_maps[[8 + length(models)]] + theme(legend.position = "none"),
+    depth_legend_geophysical_potential,
+    nrow = 4,
+    rel_heights = c(1,1,1,2),
     align = "hv"
   )
 
 depth_geophysical_potential_panel_plot <- 
   plot_grid(
-    depth_heat_maps[[1 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[5 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[2 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[6 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[3 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[7 + length(models)]] + theme(legend.position = "none"),
-    depth_heat_maps[[4 + length(models)]] + theme(legend.position = "none"),
-    depth_legend_geophysical_potential,
+    depth_geophysical_potential_microalgae_subpanel,
+    depth_geophysical_potential_macroalgae_subpanel,
     ncol = 2,
-    align = "hv"
+    axis = "v"
   )
 
 
@@ -197,4 +248,3 @@ cowplot::ggsave2(filename = str_c(working_data_directory,
                  height = 11,
                  width = 8,
                  units = "in")
- 

@@ -15,7 +15,8 @@ CDR_grids_combined <-
               mutate(potential = "geophysical")) %>% 
   select(c(CDR_annual_ub, model, potential)) %>% 
   mutate(algae = case_when(str_detect(string = model, pattern = "atkinson") == TRUE ~ "macroalgae",
-                           TRUE ~ "microalgae"))
+                           TRUE ~ "microalgae")) %>% 
+  mutate(potential = factor(potential, levels = c("tech", "geophysical")))
 
 
 #----Set_common_plot_parameters----
@@ -67,6 +68,7 @@ for (i in 1:length(models)) {
 
 
 #----Arrange_into_panel----
+#Get depth legend
 distributions_legend <- 
   get_legend(
     CDR_cdf_plots[[1]] +
@@ -77,29 +79,56 @@ distributions_legend <-
       )) %>% as_ggplot()
 
 
-CDR_cdf_panel_plot <-
+#CDFs
+CDR_cdf_microalgae_subpanel_plot <-
   plot_grid(CDR_cdf_plots[[1]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_cdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             CDR_cdf_plots[[2]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_cdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             CDR_cdf_plots[[3]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_cdf_plots[[7]] + theme(legend.position = "none"),
-            CDR_cdf_plots[[4]] + theme(legend.position = "none"),
+            CDR_cdf_plots[[4]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            nrow = 5,
+            align = "hv") 
+
+CDR_cdf_macroalgae_subpanel_plot <- 
+  plot_grid(CDR_cdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[7]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_cdf_plots[[8]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             distributions_legend,
+            nrow = 4,
+            rel_heights = c(1,1,1,2),
+            align = "hv")
+
+CDR_cdf_panel_plot <-
+  plot_grid(CDR_cdf_microalgae_subpanel_plot,
+            CDR_cdf_macroalgae_subpanel_plot,
             ncol = 2,
             align = "hv")
 
-CDR_pdf_panel_plot <-
+#PDFs
+CDR_pdf_microalgae_subpanel_plot <-
   plot_grid(CDR_pdf_plots[[1]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_pdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             CDR_pdf_plots[[2]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_pdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             CDR_pdf_plots[[3]] + theme(axis.title.x = element_blank(), legend.position = "none"),
-            CDR_pdf_plots[[7]] + theme(legend.position = "none"),
-            CDR_pdf_plots[[4]] + theme(legend.position = "none"),
+            CDR_pdf_plots[[4]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[5]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            nrow = 5,
+            align = "hv") 
+
+CDR_pdf_macroalgae_subpanel_plot <- 
+  plot_grid(CDR_pdf_plots[[6]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[7]] + theme(axis.title.x = element_blank(), legend.position = "none"),
+            CDR_pdf_plots[[8]] + theme(axis.title.x = element_blank(), legend.position = "none"),
             distributions_legend,
+            nrow = 4,
+            rel_heights = c(1,1,1,2),
+            align = "hv")
+
+CDR_pdf_panel_plot <-
+  plot_grid(CDR_pdf_microalgae_subpanel_plot,
+            CDR_pdf_macroalgae_subpanel_plot,
             ncol = 2,
             align = "hv")
+
 
 
 #----Export_plots----
