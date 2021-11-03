@@ -3,6 +3,7 @@ pacman::p_load(tidyverse,
                broom,
                lubridate,
                viridis,
+               scico,
                here,
                tidytable,
                seacarb,
@@ -16,7 +17,8 @@ pacman::p_load(tidyverse,
                readxl,
                cowplot,
                ggpubr,
-               ggrepel)
+               ggrepel,
+               xtable)
 
 #----Load_project_directories----
 source(here::here("scripts",

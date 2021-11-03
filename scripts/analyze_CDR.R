@@ -36,14 +36,14 @@ CDR_tech_potential_grid <-
   filter(depth_m >= MLD_max,
          depth_m <= pipe_depth) %>% 
   group_by(lon, lat, model) %>% 
-  slice_max(CDR_annual_lb, .preserve = TRUE) #At each grid cell, grab the depth with the maximum CDR
+  slice_max(CDR_annual_ub, .preserve = TRUE) #At each grid cell, grab the depth with the maximum CDR
                                              #...doesn't matter if choosing 'lb' or 'ub' they scale linearly
 
 #Global sum by adding up maximum all sites *where positive CDR can be generated*...
 #...Would not deploy at sites only capable of generating negative CDR
 CDR_tech_potential_sum <- 
   CDR_tech_potential_grid %>% 
-  filter(CDR_annual_lb > 0) %>% 
+  filter(CDR_annual_ub > 0) %>% 
   mutate(cell_area = map_dbl(lat, cell_grid_area)) %>% 
   mutate(across(contains("CDR_annual"), ~ .x * cell_area)) %>% #ton CO2/m^2/yr * m^2/cell = ton CO2/year/cell
   group_by(model) %>% 
@@ -55,12 +55,12 @@ CDR_geophysical_potential_grid <-
   CDR_grid %>% 
   filter(depth_m >= MLD_max) %>% #eliminate pipe depth requirement
   group_by(lon, lat, model) %>% 
-  slice_max(CDR_annual_lb, .preserve = TRUE) #At each grid cell, grab the depth with the maximum CDR
+  slice_max(CDR_annual_ub, .preserve = TRUE) #At each grid cell, grab the depth with the maximum CDR
                                              #...doesn't matter if choosing 'lb' or 'ub' they scale linearly  
 
 CDR_geophysical_potential_sum <- 
   CDR_geophysical_potential_grid %>% 
-  filter(CDR_annual_lb > 0) %>% 
+  filter(CDR_annual_ub > 0) %>% 
   mutate(cell_area = map_dbl(lat, cell_grid_area)) %>% 
   mutate(across(contains("CDR_annual"), ~ .x * cell_area)) %>% #ton CO2/m^2/yr * m^2/cell = ton CO2/year/cell
   group_by(model) %>% 

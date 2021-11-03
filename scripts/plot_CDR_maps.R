@@ -7,8 +7,8 @@
 
 #----Set_parameters_for_plots----
 
-CDR_color_limits <- c(-1.1,1.6)
-CDR_color_breaks <- seq(-1,1.5, by = 0.5)
+CDR_color_limits <- c(-1,1)
+CDR_color_breaks <- seq(-1,1, by = 0.5)
 
 depth_color_limits <- 
   depth_surfaces_matchup_table %>% 
@@ -38,13 +38,16 @@ for (j in 1:length(grids)) {
       ggplot(aes(x = lon,
                  y = lat)) +
       geom_tile(aes(fill = CDR_annual_ub)) +
-      scale_fill_viridis(name = expression(atop(Potential~CDR,(tons~CO[2]~km^{-2}~yr^{-1}))),
-                         limits = CDR_color_limits,
-                         breaks = CDR_color_breaks) +
+      scale_fill_scico(name = expression(atop(Potential~CDR,(tons~CO[2]~km^{-2}~yr^{-1}))),
+                       limits = CDR_color_limits,
+                       breaks = CDR_color_breaks,
+                       palette = "vik") +
       scale_x_continuous(name = expression(Longitude~(degree~E))) +
       scale_y_continuous(name = expression(Latitude~(degree~N))) +
       ggtitle(model_titles[i]) +
-      theme_bw()
+      theme_bw() +
+      theme(panel.grid = element_blank(), 
+            panel.background = element_rect(fill = "grey"))
     
     #Depth of maximum CDR heat maps
     depth_heat_maps[[k]] <- 
@@ -56,25 +59,28 @@ for (j in 1:length(grids)) {
       scale_x_continuous(name = expression(Longitude~(degree~E))) +
       scale_y_continuous(name = expression(Latitude~(degree~N))) +
       ggtitle(model_titles[i]) +
-      theme_bw()
+      theme_bw() +
+      theme(panel.grid = element_blank(), 
+            panel.background = element_rect(fill = "grey"))
     
     #Different color charts for technical and geophysical potentials
     if (j == 1) {
       
       depth_heat_maps[[k]] <-
         depth_heat_maps[[k]] +
-        scale_fill_viridis(name = expression(atop("Pumping Depth for","Maximum CDR (m)")),
+        scale_fill_scico(name = expression(atop("Pumping Depth for","Maximum CDR (m)")),
                            limits = c(0, max_pipe_length),
-                           breaks = seq(0,max_pipe_length, by = 100))
+                           breaks = seq(0,max_pipe_length, by = 100),
+                           palette = "batlow")
       
     } else {
       
       depth_heat_maps[[k]] <-
         depth_heat_maps[[k]] +
-        scale_fill_viridis(name = expression(atop("Pumping Depth for","Maximum CDR (m)")),
-                           limits = depth_color_limits,
-                           breaks = depth_color_breaks,
-                           option = "B")
+        scale_fill_scico(name = expression(atop("Pumping Depth for","Maximum CDR (m)")),
+                         limits = depth_color_limits,
+                         breaks = depth_color_breaks,
+                         palette = "batlow")
     }
     
     k <- k + 1
