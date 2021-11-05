@@ -13,5 +13,5 @@ model_titles <- c("Galbraith",
 m2_to_km2 <- 1e6 #m^2 per km^2
 
 depth_category_labels <-
-  c("<500 (m)",
+  c("\u2264 500 meters",
     "All Depths")

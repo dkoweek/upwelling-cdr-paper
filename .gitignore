@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data/
+writeups/
+notes.rtf
+paper/
+./deprecated/

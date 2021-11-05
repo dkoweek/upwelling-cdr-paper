@@ -20,8 +20,8 @@ CDR_grids_combined <-
 
 
 #----Set_common_plot_parameters----
-CDR_limits <- c(-1.1,1.6)
-CDR_breaks <- seq(-1,1.5, by = 0.5)
+CDR_limits <- c(-0.6,0.9)
+CDR_breaks <- seq(CDR_limits[1], CDR_limits[2], by = 0.3)
 
 #----Plot_distributions----
 CDR_cdf_plots <- list()
@@ -35,7 +35,8 @@ for (i in 1:length(models)) {
     mutate(CDR = CDR_annual_ub * m2_to_km2) %>% #ton CO2/m^2/yr -> ton CO2/km^2/yr
     ggplot(aes(x = CDR,
                colour = potential)) +
-    stat_ecdf(pad = FALSE) +
+    stat_ecdf(pad = FALSE,
+              size = 1) +
     scale_x_continuous(name = expression(Potential~CDR~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
                        limits = CDR_limits,
                        breaks = CDR_breaks) +
@@ -52,7 +53,7 @@ for (i in 1:length(models)) {
     mutate(CDR = CDR_annual_ub * m2_to_km2) %>% #ton CO2/m^2/yr -> ton CO2/km^2/yr
     ggplot(aes(x = CDR,
                colour = potential)) +
-    geom_density() +
+    geom_density(size = 1) +
     scale_x_continuous(name = expression(Potential~CDR~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
                        limits = CDR_limits,
                        breaks = CDR_breaks) +
@@ -74,8 +75,12 @@ distributions_legend <-
     CDR_cdf_plots[[1]] +
       theme(
         legend.title.align = 0.5,
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16),
         legend.direction = "vertical",
-        legend.justification = "center"
+        legend.justification = "center",
+        legend.key.width = unit(1, "in"),
+        legend.key.height = unit(0.75, "in")
       )) %>% as_ggplot()
 
 

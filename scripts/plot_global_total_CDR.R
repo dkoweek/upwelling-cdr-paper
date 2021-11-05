@@ -15,12 +15,13 @@ CDR_total_df <-
                names_to = "method",
                values_to = "CDR") %>% 
   mutate(algae = case_when(str_detect(string = model, pattern = "atkinson") == TRUE ~ "macroalgae",
-                           TRUE ~ "microalgae"))
+                           TRUE ~ "microalgae")) %>% 
+  mutate(CDR = CDR * 1000) #convert from gigatons to megatons for better display
 
 
 #----Set_plot_details----
-y_lims <- c(0, 0.25)
-y_breaks <-seq(0,0.25, by = 0.05)
+y_lims <- c(0, 250)
+y_breaks <-seq(0,250, by = 50)
 
 #----Build_microalgal_plot----
 microalgae_CDR_sums_plots <-
@@ -40,10 +41,9 @@ microalgae_CDR_sums_plots <-
                      labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
                    labels = model_titles[1:5]) +
-  scale_y_continuous(name = expression(Carbon~Dioxide~Removal~(Gt~CO[2]~yr^{-1})),
+  scale_y_continuous(name = expression(Potential~CDR~(Mt~CO[2]~yr^{-1})),
                      limits = y_lims,
                      breaks = y_breaks) +
-  ggtitle("Microalgal Growth Models") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = -15),
         axis.text = element_text(size = 12),
@@ -64,14 +64,12 @@ macroalgae_CDR_sums_plots <-
            position = position_dodge2()) +
   scale_fill_viridis(discrete = TRUE,
                      name = "Pumping Depth",
-                     labels = c("<500 (m)",
-                                "All Depths")) +
+                     labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
                    labels = model_titles[6:8]) +
-  scale_y_continuous(name = expression(Carbon~Dioxide~Removal~(Gt~CO[2]~yr^{-1})),
+  scale_y_continuous(name = expression(Potential~CDR~(Mt~CO[2]~yr^{-1})),
                      limits = y_lims,
                      breaks = y_breaks) +
-  ggtitle("Macroalgal Growth Models") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = -15),
         axis.text = element_text(size = 12),
@@ -88,7 +86,7 @@ depth_legend <-
       legend.direction = "vertical",
       legend.title = element_text(size = 14),
       legend.text = element_text(size = 12),
-      # legend.key.width = unit(0.75, "in"),
+      legend.key.width = unit(1, "in"),
       legend.justification = "center"
     )
   ) %>% as_ggplot()
@@ -98,18 +96,20 @@ depth_legend <-
 bottom_panel <- 
   plot_grid(
     macroalgae_CDR_sums_plots + theme(legend.position = "none"),
+    NULL,
     depth_legend,
-    ncol = 2,
+    NULL,
+    ncol = 4,
     align = "hv",
-    rel_widths = c(4,1)
+    rel_widths = c(3.25,0.2,1.4,0.2)
   )
 
 CDR_total_bar_plots <- 
   plot_grid(
     microalgae_CDR_sums_plots + theme(legend.position = "none"),
     bottom_panel,
-    axis = "l",
-    nrow = 2
+    nrow = 2,
+    axis = "l"
   )
 
 

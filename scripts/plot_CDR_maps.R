@@ -98,7 +98,8 @@ CDR_legend <-
       theme(
         legend.title.align = 0.5,
         legend.direction = "vertical",
-        legend.justification = "center"
+        legend.justification = "center",
+        legend.key.width = unit(1, "in")
         )) %>% as_ggplot()
 
 
@@ -147,7 +148,8 @@ depth_legend_tech_potential <-
       theme(
         legend.title.align = 0.5,
         legend.direction = "vertical",
-        legend.justification = "center"
+        legend.justification = "center",
+        legend.key.width = unit(1, "in")
       )) %>% as_ggplot()
 
 depth_legend_geophysical_potential <- 
@@ -156,7 +158,8 @@ depth_legend_geophysical_potential <-
       theme(
         legend.title.align = 0.5,
         legend.direction = "vertical",
-        legend.justification = "center"
+        legend.justification = "center",
+        legend.key.width = unit(1, "in")
       )) %>% as_ggplot()
 
 

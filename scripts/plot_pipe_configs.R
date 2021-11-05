@@ -18,9 +18,8 @@ pipe_configs_plot <-
                  colour = Field_Model),
              size = 6) +
   geom_text_repel(box.padding = 0.65) +
-  scale_colour_viridis(discrete = TRUE,
-                       option = "B",
-                       begin = 0.15,
+  scale_colour_scico_d(palette = "vik",
+                       begin = 0.15, 
                        end = 0.85) +
   scale_y_continuous(name = expression(Volumetric~Flow~per~Pipe~(m^3~s^{-1})),
                      limits = c(0, 0.5),
@@ -37,7 +36,7 @@ pipe_configs_plot <-
 #Add in test cases in this study
 study_config_df <- data.frame(Maximum_Pipe_Length_m = 500,
                               Volumetric_Flow_m3_s = 0.05,
-                              Source = "This Study")
+                              Source = "Tech. Limit: This Study")
 
 pipe_configs_plot <-
   pipe_configs_plot +
@@ -48,7 +47,7 @@ pipe_configs_plot <-
              size = 6,
              show.legend = FALSE) +
   geom_text_repel(data = study_config_df,
-                  box.padding = 0.65)
+                  box.padding = 0.75)
   
 
 #----Export_plot----
