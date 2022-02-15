@@ -19,6 +19,17 @@ upwelling_grid <-
          S_ML_xyt = salinity,
          T_ML_xyt = temperature) 
 
+#----Calculate_potential_temperature----
+upwelling_grid <- 
+  upwelling_grid %>% 
+  mutate(theta = swTheta(salinity  = S,
+                         temperature = T,
+                         pressure = depth_m,
+                         referencePressure = 0,
+                         longitude = lon,
+                         latitude = lat,
+                         eos = "gsw"))
+
 #----Save_the_grid----
 saveRDS(upwelling_grid,
         str_c(working_data_directory,

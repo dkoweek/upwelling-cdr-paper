@@ -20,7 +20,7 @@ calculate_CO2_p <- function(data, model)  {
                                   var1 = !!as.name(TA_input) / 1e6,
                                   var2 = !!as.name(DIC_input) / 1e6,
                                   S = S,
-                                  T = T,
+                                  T = theta,
                                   P = 0,
                                   warn = "n") %>% 
                         pull(CO2))

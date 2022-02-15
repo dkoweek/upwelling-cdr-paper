@@ -18,7 +18,7 @@ seconds_per_day <- 60*60*24 #seconds per day
 
 mass_flow_grid <- 
   mass_flow_grid %>% 
-  mutate.(rho_xyz = map2_dbl.(S, T, swRho, pressure = 0)) %>%  #At P=0 b/c interested in density after upwelling
+  mutate.(rho_xyz = map2_dbl.(S, theta, swRho, pressure = 0)) %>%  #calculated at surface pressure with potential temperature (theta)
   mutate.(Q_pipe_xyz = rho_xyz * pipe_volume_flow) %>% #kg/m^3 * m^3/s/pipe = kg/s/pipe
   mutate.(Q_pipe_xyz = case_when.(month %in% c(1,3,5,7,8,10,12) ~ Q_pipe_xyz * seconds_per_day * 31, #kg/month/pipe
                                      month %in% c(4,6,9,11) ~ Q_pipe_xyz * seconds_per_day * 30,
