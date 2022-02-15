@@ -3,7 +3,7 @@ mass_flow_grid <-
   readRDS(file = str_c(working_data_directory,
                        "upwelling_grid_initial.RDS",
                        sep = "/")) %>% 
-  select(c(lon, lat, month, MLD, MLD_max, S_ML_xyt, T_ML_xyt, depth_m, T, S))
+  select(c(lon, lat, month, MLD, MLD_max, S_ML_xyt, T_ML_xyt, depth_m, T, S, theta))
 
 #----Pipe_mass_flow_scenarios----
 #Based on literature review
