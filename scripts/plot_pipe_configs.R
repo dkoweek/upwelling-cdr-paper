@@ -17,7 +17,7 @@ pipe_configs_plot <-
   geom_point(aes(shape = Field_Model,
                  colour = Field_Model),
              size = 6) +
-  geom_text_repel(box.padding = 0.65) +
+  geom_text_repel(box.padding = 0.6) +
   scale_colour_scico_d(palette = "vik",
                        begin = 0.15, 
                        end = 0.85) +
