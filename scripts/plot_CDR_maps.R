@@ -38,7 +38,7 @@ for (j in 1:length(grids)) {
       ggplot(aes(x = lon,
                  y = lat)) +
       geom_tile(aes(fill = CDR_annual_ub)) +
-      scale_fill_scico(name = expression(atop(Potential~CDR,(tons~CO[2]~km^{-2}~yr^{-1}))),
+      scale_fill_scico(name = expression(atop(CDR~Potential,(tons~CO[2]~km^{-2}~yr^{-1}))),
                        limits = CDR_color_limits,
                        breaks = CDR_color_breaks,
                        palette = "vik") +

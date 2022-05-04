@@ -41,9 +41,12 @@ microalgae_CDR_sums_plots <-
                      labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
                    labels = model_titles[1:5]) +
-  scale_y_continuous(name = expression(Potential~CDR~(Mt~CO[2]~yr^{-1})),
+  scale_y_continuous(name = expression(CDR~~Potential~~(Mt~~CO[2]~~yr^{-1})),
                      limits = y_lims,
-                     breaks = y_breaks) +
+                     breaks = y_breaks,
+                     sec.axis = sec_axis(trans = ~./1e3,
+                                         name = expression(CDR~~Potential~~(Gt~~CO[2]~~yr^{-1})))
+                     ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = -15),
         axis.text = element_text(size = 12),
@@ -67,9 +70,12 @@ macroalgae_CDR_sums_plots <-
                      labels = depth_category_labels) +
   scale_x_discrete(name = element_blank(),
                    labels = model_titles[6:8]) +
-  scale_y_continuous(name = expression(Potential~CDR~(Mt~CO[2]~yr^{-1})),
+  scale_y_continuous(name = expression(CDR~~Potential~~(Mt~~CO[2]~~yr^{-1})),
                      limits = y_lims,
-                     breaks = y_breaks) +
+                     breaks = y_breaks,
+                     sec.axis = sec_axis(trans = ~./1e3,
+                                         name = expression(CDR~~Potential~~(Gt~~CO[2]~~yr^{-1})))
+                     ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = -15),
         axis.text = element_text(size = 12),
@@ -121,6 +127,6 @@ cowplot::ggsave2(filename = str_c(working_data_directory,
                                   sep = "/"),
                  plot = CDR_total_bar_plots,
                  height = 8,
-                 width = 10,
+                 width = 10.5,
                  units = "in")
   

@@ -37,7 +37,7 @@ for (i in 1:length(models)) {
                colour = potential)) +
     stat_ecdf(pad = FALSE,
               size = 1) +
-    scale_x_continuous(name = expression(Potential~CDR~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
+    scale_x_continuous(name = expression(CDR~Potential~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
                        limits = CDR_limits,
                        breaks = CDR_breaks) +
     scale_y_continuous(name = "Cumulative Frequency") +
@@ -54,7 +54,7 @@ for (i in 1:length(models)) {
     ggplot(aes(x = CDR,
                colour = potential)) +
     geom_density(size = 1) +
-    scale_x_continuous(name = expression(Potential~CDR~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
+    scale_x_continuous(name = expression(CDR~Potential~~(tons~~CO[2]~~km^{-2}~~yr^{-1})),
                        limits = CDR_limits,
                        breaks = CDR_breaks) +
     scale_y_continuous(name = "Density") +
