@@ -13,6 +13,7 @@ CDR_grids_combined <-
   bind_rows(CDR_geophysical_potential_grid %>% 
               ungroup() %>% 
               mutate(potential = "geophysical")) %>% 
+  filter(!grepl("E_k_const", model)) %>% 
   select(c(CDR_annual_ub, model, potential)) %>% 
   mutate(algae = case_when(str_detect(string = model, pattern = "atkinson") == TRUE ~ "macroalgae",
                            TRUE ~ "microalgae")) %>% 

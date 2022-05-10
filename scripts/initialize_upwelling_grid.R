@@ -11,7 +11,7 @@ source(here::here("scripts",
 #----Merge_ML_data_set_with_GLODAP----
 upwelling_grid <- 
   inner_join(mixed_layer_data %>% 
-               select(c(lon, lat, month, MLD, MLD_max, salinity, temperature, CO2, f_light, epsilon_micro, epsilon_macro)), 
+               select(c(lon, lat, month, MLD, MLD_max, salinity, temperature, CO2, f_light, E, E_k_median_micro, epsilon_micro, epsilon_macro, epsilon_micro_E_k_const)), 
              GLODAP_data %>% 
                select(c(lon, lat, depth_m, T, S, NO3, PO4, DIC, TA)), 
              by = c("lon", "lat")) %>% 

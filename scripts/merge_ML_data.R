@@ -83,4 +83,5 @@ mixed_layer_data <-
 mixed_layer_data <- 
   mixed_layer_data %>% 
   mutate(epsilon_micro = tanh(E / E_k_median_micro),
-         epsilon_macro = tanh(E / E_k_median_macro))
+         epsilon_macro = tanh(E / E_k_median_macro),
+         epsilon_micro_E_k_const = tanh(E / median(E_k_medians$E_k_median_micro))) #calculate a case where E_k micro does not change in space and time, like for macroalgae

@@ -10,6 +10,7 @@ CDR_total_df <-
   left_join(CDR_tech_potential_sum,
             CDR_geophysical_potential_sum,
             by = "model") %>% 
+  filter(!grepl("E_k_const", model)) %>% 
   select(c(model,contains("ub"))) %>% 
   pivot_longer(cols = contains("ub"),
                names_to = "method",
