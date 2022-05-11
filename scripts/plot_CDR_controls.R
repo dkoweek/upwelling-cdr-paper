@@ -244,7 +244,7 @@ macroalgae_controls_plot <-
               linetype = "dashed",
               se = FALSE) +
   scale_x_continuous(name = "Macroalgae C:N") +
-  scale_y_continuous(expression(CDR~Potential~(Mt~CO[2]~yr^{-1}))) +
+  scale_y_continuous(expression(CDR~Potential~~~(Mt~CO[2]~yr^{-1}))) +
   ggtitle("Macroalgae") +
   theme_bw() +
   theme(legend.position = c(0.72, 0.2),
@@ -275,7 +275,7 @@ microalgae_controls_plot <-
               colour = "grey",
               se = FALSE) +
   scale_x_continuous(name = "Microalgae C:N x C:P") +
-  scale_y_continuous(expression(CDR~Potential~(Mt~CO[2]~yr^{-1}))) +
+  scale_y_continuous(expression(CDR~Potential~~~(Mt~CO[2]~yr^{-1}))) +
   ggtitle("Microalgae") +
   theme_bw() +
   theme(legend.position = c(0.25, 0.75),
