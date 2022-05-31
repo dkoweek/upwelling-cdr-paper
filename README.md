@@ -51,7 +51,7 @@ Start by initializing the workspace `source("scripts/initialize_workspace.R")`. 
 
 Once the workspace has been initialized, you can initialize the model grid using `source("scripts/initialize_upwelling_grid.R")`. This will call a series of dependencies. If the script crashes due to a missing file or incorrect file path, trace the error back until you can correct the error. Iterate as needed. You will know the script successfully initializes the model when the file `data/working_data/upwelling_grid_initial.RDS` is saved.
 
-## Calculate CO$_2$ Gradients
+## Calculate CO<sub>2</sub> Gradients
 
 After generating the file `data/working_data/upwelling_grid_initial.RDS`, the next step to complete the model simulations is to calculate the expected CO$_2$ concentration gradients between background and upwelling conditions using `source("scripts/calculate_CO2_gradients.R")`. This will produce a series of files (one for each microalgae or macroalgae C:N:P ratio) in the `working_data` directory. All files will take the name format: `[model_name]_delta_CO2_grid.RDS`. **Note: Using the machine specifications listed in `session_information.txt`, it took me approximately 36 hours to complete these calculations**.
 
