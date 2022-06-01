@@ -108,7 +108,7 @@ bottom_panel <-
     NULL,
     ncol = 4,
     align = "hv",
-    rel_widths = c(3.25,0.2,1.4,0.2)
+    rel_widths = c(3.25,0.04,1.4,0.2)
   )
 
 CDR_total_bar_plots <- 
