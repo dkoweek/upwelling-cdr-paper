@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/425064808.svg)](https://zenodo.org/badge/latestdoi/425064808)
+
 This is the public code respository for:
 
 [David A. Koweek (2022) Expected Limits on the Potential for Carbon Dioxide Removal From Artificial Upwelling. Frontiers in Marine Science 9:841894. doi: 10.3389/fmars.2022.841894](https://doi.org/10.3389/fmars.2022.841894)
